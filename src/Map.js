@@ -76,6 +76,7 @@ export default class Map extends Component {
 
   componentDidMount() {
     const { center } = this.state;
+    const { setCounties } = this.props;
     // var width = document.body.clientWidth
     // var height = document.body.clientHeight
     // var center = [width / 2, height / 2]
@@ -85,6 +86,11 @@ export default class Map extends Component {
     // this.renderCounty(prj);
     // this.renderTown(prj);
     // this.renderVillage(prj);
+    const counties = [];
+    this.topoCounty.features.forEach(c => {
+      counties.push(c)
+    });
+    setCounties(counties)
     select(this.mapRef)
       .on('wheel', throttle(this.wheelEvent, 400));
   }
