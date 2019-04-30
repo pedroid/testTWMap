@@ -439,7 +439,7 @@ export default class Map extends Component {
                   <path
                     fill='#FEFEE9'
                     stroke='#777'
-                    strokeWidth={0.07}
+                    strokeWidth={0.2}
                     d={this.path(county)}
                     onMouseOver={() => {
                       setInfo({
@@ -476,7 +476,7 @@ export default class Map extends Component {
                   <path
                     fill='#FEFEE9'
                     stroke='pink'
-                    strokeWidth={0.09}
+                    strokeWidth={0.2}
                     d={this.path(town)}
                     onMouseOver={() => {
                       setInfo({
@@ -512,7 +512,7 @@ export default class Map extends Component {
                   <path
                     fill='#FEFEE9'
                     stroke='skyblue'
-                    strokeWidth={0.1}
+                    strokeWidth={0.2}
                     d={this.path(village)}
                     onMouseOver={() => {
                       setInfo({
