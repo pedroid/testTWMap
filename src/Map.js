@@ -41,6 +41,10 @@ export default class Map extends Component {
       selection: null,
       element: null
     };
+    this.selectedVillage = {
+      selection: null,
+      element: null
+    };
     this.currentViewport = {
       x: 480,
       y: 480,
@@ -48,8 +52,7 @@ export default class Map extends Component {
     };
     const width = (document.body.clientWidth / 3) * 2 - 10;
     const height = document.body.clientHeight;
-    console.log(height);
-    console.log(width)
+
     this.zoom = d3.zoom().on('zoom', this.zoomed);
     const prj = geoMercator().center([121, 23.9]).translate([width / 2, height / 2]).scale(10000);
     this.path = geoPath().projection(prj)
@@ -78,7 +81,7 @@ export default class Map extends Component {
 
   componentDidMount() {
     const { center } = this.state;
-    const { setCounties } = this.props;
+    const { setDatas } = this.props;
     // var width = document.body.clientWidth
     // var height = document.body.clientHeight
     // var center = [width / 2, height / 2]
@@ -90,9 +93,37 @@ export default class Map extends Component {
     // this.renderVillage(prj);
     const counties = [];
     this.topoCounty.features.forEach(c => {
-      counties.push(c)
+      const { COUNTYNAME, COUNTYCODE } = c.properties;
+      counties.push({
+        name: COUNTYNAME,
+        code: COUNTYCODE
+      })
     });
-    setCounties(counties)
+    const towns = [];
+    this.topoTown.features.forEach(t => {
+      const { TOWNNAME, COUNTYNAME, TOWNCODE } = t.properties;
+      towns.push({
+        name: TOWNNAME,
+        countyName: COUNTYNAME,
+        code: TOWNCODE
+      })
+    });
+    const villages = [];
+    this.topoVillage.features.forEach(v => {
+      const { VILLNAME, TOWNNAME, COUNTYNAME, VILLCODE } = v.properties;
+      villages.push({
+        name: VILLNAME,
+        townName: TOWNNAME,
+        countyName: COUNTYNAME,
+        code: VILLCODE
+      })
+    });
+    setDatas({
+      counties,
+      towns,
+      villages
+    });
+
     select(this.mapRef)
       .on('wheel', throttle(this.wheelEvent, 400));
   }
@@ -225,7 +256,7 @@ export default class Map extends Component {
         .transition()
         .duration(500)
         .style('opacity', 0)
-        .on('end', (town) => {
+        .on('end', () => {
           tmpSelectedCounty
             .style('display', 'none')
         });
@@ -249,17 +280,31 @@ export default class Map extends Component {
         .transition()
         .duration(500)
         .style('opacity', 0)
-        .on('end', (town) => {
+        .on('end', () => {
           tmpSelectedTown
             .style('display', 'none')
         });
+    }
+    if (this.selectedVillage.selection !== null) {
+      const tmpSelectedVillage = this.selectedVillage.selection
+      tmpSelectedVillage
+        .select('path')
+        .attr('fill', '#FEFEE9')
+    }
+  }
+  clearSelectedVillage = () => {
+    if (this.selectedVillage.selection !== null) {
+      const tmpSelectedVillage = this.selectedVillage.selection
+      tmpSelectedVillage
+        .select('path')
+        .attr('fill', '#FEFEE9')
     }
   }
   /**
    * 點擊 縣市 進入 鄉鎮市 Level 的 method
    * 
    */
-  zoomInSelectedCounty = (county) => {
+  zoomInSelectedCounty = (county, animate = true) => {
     if (county === null) {
       return;
     }
@@ -269,9 +314,8 @@ export default class Map extends Component {
 
     this.selectedCounty.selection = select(this.mapRef)
       .select('g.townContainer')
-      .selectAll(`g[data-county=${COUNTYNAME}]`)
-    // .filter(t => t.properties.name.includes(name));
-    // .filter(t => t.properties.COUNTYNAME === name);
+      .selectAll(`g[data-county=${COUNTYNAME}]`);
+
     this.selectedCounty.selection
       .style('display', 'block')
       .transition()
@@ -283,37 +327,59 @@ export default class Map extends Component {
       element: null
     };
 
-    // this.zoomAnim(county, 2);
-    this.zoomAnimate(county)
+    if (animate) {
+      this.zoomAnimate(county)
+    }
   }
   /**
    * 點擊 鄉鎮市 進入 村里 Level 的 method
    *
    */
-  zoomInSelectedTown = (town) => {
+  zoomInSelectedTown = (town, animate = true) => {
     if (town === null) {
       return;
     }
-    const { name, TOWNNAME, COUNTYNAME } = town.properties;
-    // console.log(town.properties)
+    const { TOWNNAME, COUNTYNAME } = town.properties;
+
     this.clearSelectedTown()
-    // this.selectedTown.element = town;
+
     this.selectedTown.element = town;
     this.selectedTown.selection = select(this.mapRef)
       .select('g.villageContainer')
-      // .selectAll('g')
-      .selectAll(`g[data-town=${TOWNNAME}][data-county=${COUNTYNAME}]`)
-    // .filter(t => t.properties.name.includes(name))
-    // .filter(t => t.properties.TOWNNAME === TOWNNAME)
+      .selectAll(`g[data-town=${TOWNNAME}][data-county=${COUNTYNAME}]`);
+
     this.selectedTown.selection
       .style('display', 'block')
       .transition()
       .duration(500)
       .style('opacity', 1);
 
-    // this.zoomAnim(town, 2);
+    if (animate) {
+      this.zoomAnimate(town)
+    }
+  }
+  zoomInSelectedVillage = (village) => {
+    if (village === null) {
+      return;
+    }
+    const { VILLNAME, TOWNNAME, COUNTYNAME } = village.properties;
+    if (VILLNAME === '') {
+      return;
+    }
 
-    this.zoomAnimate(town)
+    this.clearSelectedVillage()
+
+    this.selectedVillage.element = village;
+    this.selectedVillage.selection = select(this.mapRef)
+      .select('g.villageContainer')
+      .select(`g#${VILLNAME}[data-town=${TOWNNAME}][data-county=${COUNTYNAME}]`)
+
+    this.selectedVillage.selection
+      .select('path')
+      .attr('fill', 'skyblue')
+      .transition()
+      .duration(500);
+
   }
   /**
    * 處理zoom in/out animation 的 method
@@ -420,9 +486,35 @@ export default class Map extends Component {
   exportToPNG = () => {
     saveSvgAsPng(this.mapRef, 'map.png')
   }
-  render() {
+  goto_county = (countyName) => {
+    const targetCounty = this.topoCounty.features.filter(c => c.properties.COUNTYNAME === countyName);
+    this.zoomInSelectedCounty(targetCounty[0]);
+  }
+  goto_township = (countyName, townName) => {
+    const targetCounty = this.topoCounty.features.filter(c => c.properties.COUNTYNAME === countyName);
 
-    const { width, height } = this.state;
+    const targetTown = this.topoTown.features.filter(t => {
+      const { COUNTYNAME, TOWNNAME } = t.properties;
+      return COUNTYNAME === countyName && TOWNNAME === townName;
+    });
+    this.zoomInSelectedCounty(targetCounty[0], false);
+    this.zoomInSelectedTown(targetTown[0]);
+  }
+  goto_village = (countyName, townName, villageName) => {
+    const targetCounty = this.topoCounty.features.filter(c => c.properties.COUNTYNAME === countyName);
+    const targetTown = this.topoTown.features.filter(t => {
+      const { COUNTYNAME, TOWNNAME } = t.properties;
+      return COUNTYNAME === countyName && TOWNNAME === townName;
+    });
+    const targetVillage = this.topoVillage.features.filter(v => {
+      const { COUNTYNAME, TOWNNAME, VILLNAME } = v.properties;
+      return COUNTYNAME === countyName && TOWNNAME === townName && VILLNAME === villageName;
+    });
+    this.zoomInSelectedCounty(targetCounty[0], false);
+    this.zoomInSelectedTown(targetTown[0]);
+    this.zoomInSelectedVillage(targetVillage[0])
+  }
+  render() {
     const { setInfo } = this.props;
     return (
       <svg ref={ref => this.mapRef = ref} width={'100%'} height={'100%'}>
@@ -506,7 +598,7 @@ export default class Map extends Component {
                   className='village'
                   style={{
                     opacity: 0,
-                    display: 'none'
+                    display: 'none',
                   }}
                 >
                   <path
@@ -520,7 +612,8 @@ export default class Map extends Component {
                       });
                     }}
                     onClick={() => {
-                      // console.log(this)
+                      this.clearSelectedVillage();
+                      this.zoomInSelectedVillage(village)
                     }}
                   />
                 </g>
