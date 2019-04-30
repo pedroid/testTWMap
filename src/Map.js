@@ -10,9 +10,9 @@ import * as topojson from 'topojson';
 import twVillage from './assets/tw-village.topo';
 import twTown from './assets/tw-town.topo';
 import twCounty from './assets/tw-county.topo';
-import * as d3 from "d3";
+import * as d3 from 'd3';
 import { select } from 'd3-selection';
-import { geoPath, geoMercator, geoAlbers } from 'd3-geo';
+import { geoPath, geoMercator } from 'd3-geo';
 import { saveSvgAsPng } from 'save-svg-as-png';
 import throttle from 'lodash.throttle';
 
@@ -46,9 +46,11 @@ export default class Map extends Component {
       y: 480,
       w: 960
     };
-    const width = (document.body.clientWidth / 3) * 2;
+    const width = (document.body.clientWidth / 3) * 2 - 10;
     const height = document.body.clientHeight;
-    this.zoom = d3.zoom().on("zoom", this.zoomed);
+    console.log(height);
+    console.log(width)
+    this.zoom = d3.zoom().on('zoom', this.zoomed);
     const prj = geoMercator().center([121, 23.9]).translate([width / 2, height / 2]).scale(10000);
     this.path = geoPath().projection(prj)
     this.state = {
@@ -107,7 +109,7 @@ export default class Map extends Component {
       // .style('z-index', '0')
       // .append('g')
       // .attr('class', 'countyContainer')
-      // // .attr("transform", "translate(" + (center[0] - 480 * ((height / 960) * 0.8)) + "," + (center[1] - 480 * ((height / 960) * 0.8)) + ")scale(" + (height / 960) * 0.8 + ")")
+      // // .attr('transform', 'translate(' + (center[0] - 480 * ((height / 960) * 0.8)) + ',' + (center[1] - 480 * ((height / 960) * 0.8)) + ')scale(' + (height / 960) * 0.8 + ')')
       // .selectAll('path')
       // .data(this.topoCounty.features)
       // .enter()
@@ -146,7 +148,7 @@ export default class Map extends Component {
     select(this.mapRef)
     // .append('g')
     // .attr('class', 'townContainer')
-    // // .attr("transform", "translate(" + (center[0] - 480 * ((height / 960) * 0.8)) + "," + (center[1] - 480 * ((height / 960) * 0.8)) + ")scale(" + (height / 960) * 0.8 + ")")
+    // // .attr('transform', 'translate(' + (center[0] - 480 * ((height / 960) * 0.8)) + ',' + (center[1] - 480 * ((height / 960) * 0.8)) + ')scale(' + (height / 960) * 0.8 + ')')
     // .selectAll('path')
     // .data(this.topoTown.features)
     // .enter()
@@ -186,7 +188,7 @@ export default class Map extends Component {
     // select(this.mapRef)
     //   .append('g')
     //   .attr('class', 'villageContainer')
-    //   // .attr("transform", "translate(" + (center[0] - 480 * ((height / 960) * 0.8)) + "," + (center[1] - 480 * ((height / 960) * 0.8)) + ")scale(" + (height / 960) * 0.8 + ")")
+    //   // .attr('transform', 'translate(' + (center[0] - 480 * ((height / 960) * 0.8)) + ',' + (center[1] - 480 * ((height / 960) * 0.8)) + ')scale(' + (height / 960) * 0.8 + ')')
     //   .selectAll('path')
     //   .data(this.topoVillage.features)
     //   .enter()
@@ -282,21 +284,7 @@ export default class Map extends Component {
     };
 
     // this.zoomAnim(county, 2);
-    const { width, height } = this.state;
-    var bounds = this.path.bounds(county),
-      dx = bounds[1][0] - bounds[0][0],
-      dy = bounds[1][1] - bounds[0][1],
-      x = (bounds[0][0] + bounds[1][0]) / 2,
-      y = (bounds[0][1] + bounds[1][1]) / 2,
-      scale = Math.max(1, Math.min(8, 0.9 / Math.max(dx / width, dy / height))),
-      translate = [width / 2 - scale * x, height / 2 - scale * y];
-
-    select(this.mapRef)
-      // .selectAll('g.countyContainer, g.townContainer, g.villageContainer')
-      .transition()
-      .duration(750)
-      // .call(zoom.translate(translate).scale(scale).event); // not in d3 v4
-      .call(this.zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+    this.zoomAnimate(county)
   }
   /**
    * 點擊 鄉鎮市 進入 村里 Level 的 method
@@ -325,19 +313,7 @@ export default class Map extends Component {
 
     // this.zoomAnim(town, 2);
 
-    const { width, height } = this.state;
-    var bounds = this.path.bounds(town),
-      dx = bounds[1][0] - bounds[0][0],
-      dy = bounds[1][1] - bounds[0][1],
-      x = (bounds[0][0] + bounds[1][0]) / 2,
-      y = (bounds[0][1] + bounds[1][1]) / 2,
-      scale = Math.max(1, Math.min(8, 0.9 / Math.max(dx / width, dy / height))),
-      translate = [width / 2 - scale * x, height / 2 - scale * y];
-
-    select(this.mapRef)
-      .transition()
-      .duration(750)
-      .call(this.zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+    this.zoomAnimate(town)
   }
   /**
    * 處理zoom in/out animation 的 method
@@ -372,7 +348,7 @@ export default class Map extends Component {
       .selectAll('g.countyContainer, g.townContainer, g.villageContainer')
       .transition()
       .duration(750)
-      .attrTween("transform", function () {
+      .attrTween('transform', function () {
         return function (t) {
           return transform(i(t));
         };
@@ -380,13 +356,31 @@ export default class Map extends Component {
 
     function transform(p) {
       let k = (height / p[2]) * 0.8;
-      return "translate(" + (center[0] - p[0] * k) + "," + (center[1] - p[1] * k) + ")scale(" + k + ")";
+      return 'translate(' + (center[0] - p[0] * k) + ',' + (center[1] - p[1] * k) + ')scale(' + k + ')';
     }
+  }
+  zoomAnimate = (target) => {
+    const { width, height, center } = this.state;
+    var bounds = this.path.bounds(target),
+      dx = bounds[1][0] - bounds[0][0],
+      dy = bounds[1][1] - bounds[0][1],
+      x = (bounds[0][0] + bounds[1][0]) / 2,
+      y = (bounds[0][1] + bounds[1][1]) / 2,
+      vw = Math.max((bounds[1][1] - bounds[0][1]), (bounds[1][0] - bounds[0][0])),
+      // scale = Math.max(1, Math.min(8, 0.9 / Math.max(dx / width, dy / height))) * 0.8,
+      scale = (height / vw) * 0.7,
+      // translate = [width / 2 - scale * x, height / 2 - scale * y],
+      translate = [center[0] - x * scale, center[1] - y * scale];
+
+    select(this.mapRef)
+      .transition()
+      .duration(750)
+      .call(this.zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
   }
   zoomed = () => {
     select(this.mapRef)
       .selectAll('g.countyContainer, g.townContainer, g.villageContainer')
-      .attr("transform", d3.event.transform);
+      .attr('transform', d3.event.transform);
   }
   /**
    * Zoom Out 至初始視圖
@@ -431,8 +425,8 @@ export default class Map extends Component {
     const { width, height } = this.state;
     const { setInfo } = this.props;
     return (
-      <svg ref={ref => this.mapRef = ref} width={width} height={height}>
-        <g className="countyContainer">
+      <svg ref={ref => this.mapRef = ref} width={'100%'} height={'100%'}>
+        <g className='countyContainer'>
           {
             this.topoCounty.features.map((county) => {
               const { COUNTYNAME, COUNTYCODE } = county.properties;
@@ -445,7 +439,7 @@ export default class Map extends Component {
                   <path
                     fill='#FEFEE9'
                     stroke='#777'
-                    strokeWidth={0.3}
+                    strokeWidth={0.07}
                     d={this.path(county)}
                     onMouseOver={() => {
                       setInfo({
@@ -464,7 +458,7 @@ export default class Map extends Component {
             })
           }
         </g>
-        <g className="townContainer">
+        <g className='townContainer'>
           {
             this.topoTown.features.map((town) => {
               const { TOWNNAME, COUNTYNAME, TOWNCODE } = town.properties;
@@ -482,7 +476,7 @@ export default class Map extends Component {
                   <path
                     fill='#FEFEE9'
                     stroke='pink'
-                    strokeWidth={0.3}
+                    strokeWidth={0.09}
                     d={this.path(town)}
                     onMouseOver={() => {
                       setInfo({
@@ -499,7 +493,7 @@ export default class Map extends Component {
             })
           }
         </g>
-        <g className="villageContainer">
+        <g className='villageContainer'>
           {
             this.topoVillage.features.map((village) => {
               const { VILLNAME, TOWNNAME, COUNTYNAME, VILLCODE } = village.properties;
@@ -518,7 +512,7 @@ export default class Map extends Component {
                   <path
                     fill='#FEFEE9'
                     stroke='skyblue'
-                    strokeWidth={0.3}
+                    strokeWidth={0.1}
                     d={this.path(village)}
                     onMouseOver={() => {
                       setInfo({
