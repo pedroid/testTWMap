@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React from 'react';
 
 export const InfoModal = ({ info }) => {
   // console.log(info);

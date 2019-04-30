@@ -40,7 +40,7 @@ export default class App extends Component {
           <div>
             <select name="county" id="selectCounty" ref={ref => this.countySelect = ref}>
               {
-                counties.map(c => <option key={c.properties.name} value={JSON.stringify(c)}>{c.properties.name}</option>)
+                counties.map(c => <option key={c.properties.COUNTYNAME} value={JSON.stringify(c)}>{c.properties.COUNTYNAME}</option>)
               }
             </select>
             <input type="button" onClick={this.toCounty} value="傳送" style={{ marginLeft: 5 }} />
