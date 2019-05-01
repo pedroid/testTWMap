@@ -479,7 +479,7 @@ export default class Map extends Component {
       return;
     }
     const direction = d3.event.wheelDelta < 0 ? 'down' : 'up';
-    if (direction === 'up') {
+    if (direction === 'down') {
       this.zoom_out()
     }
   }
