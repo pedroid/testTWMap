@@ -27,6 +27,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
+  "homepage": "https://kennedy0527.github.io/TwMapTest/",
   "eslintConfig": {
     "extends": "react-app"
   },
