@@ -15,8 +15,8 @@ import { select } from 'd3-selection';
 import { geoPath, geoMercator } from 'd3-geo';
 import { saveSvgAsPng } from 'save-svg-as-png';
 import throttle from 'lodash.throttle';
-// import isEqual from 'react-fast-compare';
-import isEqual from 'lodash.isequal';
+import isEqual from 'react-fast-compare';
+
 import update, { extend } from 'immutability-helper';
 
 import County from './County';
