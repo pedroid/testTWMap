@@ -7,7 +7,9 @@ export const InfoModal = ({ info }) => {
   }
   return (
     <div className="infoModal">
-      <p>{info.name}</p>
+      <p className="name">{info.name}</p>
+      <p className="data">{info.data}</p>
+      <p className="description">{info.description}</p>
     </div>
   )
 }

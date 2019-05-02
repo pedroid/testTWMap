@@ -1,0 +1,15 @@
+[[3084]]
+{"arcs":[[[3084]]],"type":"Polygon","properties":{"TOWNID":"C01-1","TOWNCODE":"10017010-1","COUNTYNAME":"彭佳嶼","TOWNNAME":"彭佳嶼","TOWNENG":"","COUNTYID":"C-1","COUNTYCODE":"10017-1"}}
+[[3083]]
+{"arcs":[[[3083]]],"type":"Polygon","properties":{"TOWNID":"C01-2","TOWNCODE":"10017010-2","COUNTYNAME":"棉花嶼","TOWNNAME":"棉花嶼","TOWNENG":"","COUNTYID":"C-2","COUNTYCODE":"10017-2"}}
+[[3082]]
+{"arcs":[[[3082]]],"type":"Polygon","properties":{"TOWNID":"C01-3","TOWNCODE":"10017010-3","COUNTYNAME":"花瓶嶼","TOWNNAME":"花瓶嶼","TOWNENG":"","COUNTYID":"C-3","COUNTYCODE":"10017-3"}}
+[[3081]]
+{"arcs":[[[3081]]],"type":"Polygon","properties":{"TOWNID":"C01-4","TOWNCODE":"10017010-4","COUNTYNAME":"基隆嶼","TOWNNAME":"基隆嶼","TOWNENG":"","COUNTYID":"C-4","COUNTYCODE":"10017-4"}}
+
+{"arcs":[[[227,228,229,230]],[[231]],[[232]],[[233]],[[234]]],"type":"MultiPolygon","properties":{"COUNTYID":"C","COUNTYCODE":"10017","COUNTYNAME":"基隆市","COUNTYENG":"Keelung City"}}
+[[231]],[[232]],[[233]],[[234]]
+{"arcs":[[[234]]],"type":"Polygon","properties":{"COUNTYID":"C-1","COUNTYCODE":"10017-1","COUNTYNAME":"彭佳嶼","COUNTYENG":""}}
+{"arcs":[[[233]]],"type":"Polygon","properties":{"COUNTYID":"C-2","COUNTYCODE":"10017-2","COUNTYNAME":"棉花嶼","COUNTYENG":""}}
+{"arcs":[[[232]]],"type":"Polygon","properties":{"COUNTYID":"C-3","COUNTYCODE":"10017-3","COUNTYNAME":"花瓶嶼","COUNTYENG":""}}
+{"arcs":[[[231]]],"type":"Polygon","properties":{"COUNTYID":"C-4","COUNTYCODE":"10017-4","COUNTYNAME":"基隆嶼","COUNTYENG":""}}

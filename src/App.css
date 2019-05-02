@@ -38,8 +38,25 @@
   border: 1px solid #777;
   border-radius: 5px;
   background: white;
-  width: 150px;
+  width: 200px;
   box-shadow: 0px 0px 10px 1px #777;
+}
+.controller {
+  padding: 5px;
+  margin: 5px;
+  border: 1px solid #282c34;
+  text-align: left;
+  border-radius: 4px;
+}
+.controller div {
+  margin-bottom: 5px;
+}
+.controller input {
+  margin-right: 5px;
+}
+.infoModal .description {
+  font-size: 12px;
+  color: #777;
 }
 @keyframes App-logo-spin {
   from {
