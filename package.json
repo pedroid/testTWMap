@@ -22,7 +22,7 @@
     "start": "yarn build && yarn run serve",
     "serve": "serve -s build",
     "predeploy": "yarn run build",
-   "deploy": "gh-pages -d build",
+    "deploy": "gh-pages -d build",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

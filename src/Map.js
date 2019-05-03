@@ -1,12 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
 import * as topojson from 'topojson';
-// import twVillage from './assets/tw-village-topo';
-// import twTown from './assets/tw-town-topo';
-// import twCounty from './assets/tw-county-topo';
-// import twVillage from './assets/taiwan_village.topo';
-// import twTown from './assets/taiwan_town.topo';
-// import twCounty from './assets/taiwan_county.topo';
 import twVillage from './assets/tw-village.topo';
 import twTown from './assets/tw-town.topo';
 import twCounty from './assets/tw-county.topo';
@@ -26,14 +20,6 @@ import Village from './Village';
 export default class Map extends Component {
   constructor(props) {
     super(props);
-
-    // this.topoVillage = topojson.feature(twVillage, twVillage.objects.tracts);
-    // this.topoTown = topojson.feature(twTown, twTown.objects.town);
-    // this.topoCounty = topojson.feature(twCounty, twCounty.objects.counties);
-
-    // this.topoVillage = topojson.feature(twVillage, twVillage.objects.taiwan_village);
-    // this.topoTown = topojson.feature(twTown, twTown.objects.taiwan);
-    // this.topoCounty = topojson.feature(twCounty, twCounty.objects.layer1);
 
 
     const topoVillage = topojson.feature(twVillage, twVillage.objects.village);
@@ -300,46 +286,6 @@ export default class Map extends Component {
   /**
    * 處理zoom in/out animation 的 method
    */
-  // zoomAnim = (target, level) => {
-  //   const { height, center } = this.state;
-
-  //   const shape = geoPath().bounds(target)
-  //   const x = this.currentViewport.x;
-  //   const y = this.currentViewport.y;
-  //   const w = this.currentViewport.w;
-
-
-  //   let from = [];
-  //   let to = [];
-  //   if (level === 2) {
-  //     this.currentViewport.x = (shape[1][0] + shape[0][0]) / 2;
-  //     this.currentViewport.y = (shape[1][1] + shape[0][1]) / 2;
-  //     this.currentViewport.w = Math.max((shape[1][1] - shape[0][1]), (shape[1][0] - shape[0][0]));
-  //     from = [x, y, w]
-  //     to = [this.currentViewport.x, this.currentViewport.y, this.currentViewport.w]
-  //   } else {
-  //     this.currentViewport.x = 480;
-  //     this.currentViewport.y = 480;
-  //     this.currentViewport.w = 960;
-  //     from = [x, y, w]
-  //     to = [this.currentViewport.x, this.currentViewport.y, this.currentViewport.w]
-  //   }
-  //   var i = d3.interpolateZoom(from, to);
-  //   select(this.mapRef)
-  //     .selectAll('g.countyContainer, g.townContainer, g.villageContainer')
-  //     .transition()
-  //     .duration(750)
-  //     .attrTween('transform', function () {
-  //       return function (t) {
-  //         return transform(i(t));
-  //       };
-  //     })
-
-  //   function transform(p) {
-  //     let k = (height / p[2]) * 0.8;
-  //     return 'translate(' + (center[0] - p[0] * k) + ',' + (center[1] - p[1] * k) + ')scale(' + k + ')';
-  //   }
-  // }
   zoomAnimate = (target) => {
     const { height, center } = this.state;
     const bounds = this.path.bounds(target);
