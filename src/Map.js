@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import * as topojson from 'topojson';
 import twVillage from './assets/tw-village.topo';
-import twTown from './assets/tw-town.topo';
+import twTownship from './assets/tw-town.topo';
 import twCounty from './assets/tw-county.topo';
 import * as d3 from 'd3';
 import { select } from 'd3-selection';
@@ -23,13 +23,14 @@ export default class Map extends Component {
 
 
     const topoVillage = topojson.feature(twVillage, twVillage.objects.village);
-    const topoTown = topojson.feature(twTown, twTown.objects.town);
+    const topoTownship = topojson.feature(twTownship, twTownship.objects.town);
     const topoCounty = topojson.feature(twCounty, twCounty.objects.county);
 
 
     // for Demo only
     this.counties = [];
     const county_data = [];
+    const county_template = [];
     topoCounty.features.forEach((c, i) => {
       const { COUNTYNAME, COUNTYCODE } = c.properties;
       this.counties.push({
@@ -41,10 +42,16 @@ export default class Map extends Component {
         county_data: parseInt(Math.random() * 100, 10),
         county_description: `我是 ${COUNTYNAME} 的描述內容`,
       })
+      county_template.push({
+        county_name: COUNTYNAME,
+        county_data: 0,
+        county_description: ''
+      })
     });
     this.towns = [];
     const township_data = [];
-    topoTown.features.forEach((t, i) => {
+    const township_template = [];
+    topoTownship.features.forEach((t, i) => {
       const { TOWNNAME, COUNTYNAME, TOWNCODE } = t.properties;
       this.towns.push({
         name: TOWNNAME,
@@ -57,9 +64,16 @@ export default class Map extends Component {
         township_data: parseInt(Math.random() * 100, 10),
         township_description: `我是 ${COUNTYNAME}${TOWNNAME} 的描述內容`,
       })
+      township_template.push({
+        county_name: COUNTYNAME,
+        township_name: TOWNNAME,
+        township_data: 0,
+        township_description: ''
+      })
     });
     this.villages = [];
-    const village_data = []
+    const village_data = [];
+    const village_template = [];
     topoVillage.features.forEach((v, i) => {
       const { VILLNAME, TOWNNAME, COUNTYNAME, VILLCODE } = v.properties;
       this.villages.push({
@@ -75,7 +89,18 @@ export default class Map extends Component {
         village_data: parseInt(Math.random() * 100, 10),
         village_description: `我是 ${COUNTYNAME}${TOWNNAME}${VILLNAME} 的描述內容`,
       })
+      village_template.push({
+        county_name: COUNTYNAME,
+        township_name: TOWNNAME,
+        village_name: VILLNAME,
+        county_data: 0,
+        county_description: ''
+      })
     });
+    // this.writeTemplateToFile('county_data', county_template)
+    // this.writeTemplateToFile('township_data', township_template)
+    // this.writeTemplateToFile('village_data', village_template)
+
     props.setDatas({
       counties: this.counties,
       towns: this.towns,
@@ -111,12 +136,25 @@ export default class Map extends Component {
       height,
       center: [width / 2, height / 2],
       topoCounty: topoCounty,
-      topoTownship: topoTown,
+      topoTownship: topoTownship,
       topoVillage: topoVillage,
       county_data,
       village_data,
       township_data
     }
+  }
+  /**
+   *  export data template json file
+   */
+  writeTemplateToFile = (filename, objectData) =>{
+    let contentType = "application/json;charset=utf-8;";
+    const a = document.createElement('a');
+    a.download = filename;
+    a.href = 'data:' + contentType + ',' + encodeURIComponent(JSON.stringify(objectData));
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
   shouldComponentUpdate(nextProps, nextState) {
     const { county_data, village_data, township_data } = this.state;
