@@ -3,12 +3,13 @@ import isEqual from 'react-fast-compare';
 
 class Path extends PureComponent {
   render() {
-    const { town, path, name, data, description, setInfo, clearSelectedTown, zoomInSelectedTown } = this.props;
+    const { town, path, name, code, data, description, setInfo, clearSelectedTown, zoomInSelectedTown, fill } = this.props;
     const { TOWNNAME, COUNTYNAME } = town.properties;
 
     return (
       <g
         id={TOWNNAME}
+        data-code={code}
         data-county={COUNTYNAME}
         className='town'
         style={{
@@ -17,9 +18,9 @@ class Path extends PureComponent {
         }}
       >
         <path
-          fill='#FEFEE9'
-          stroke='pink'
-          strokeWidth={0.2}
+          fill={fill}
+          stroke='white'
+          strokeWidth={0.05}
           d={path(town)}
           onMouseOver={() => {
             setInfo({
@@ -46,26 +47,46 @@ class Township extends Component {
     }
     return false;
   }
+  getProperties = (properties) => {
+    const { country } = this.props;
+    switch (country) {
+      case 'kr':
+        const { name, code } = properties;
+        return {
+          key: code,
+          name
+        }
+      case 'tw':
+      default:
+        const { TOWNNAME, TOWNCODE } = properties;
+        return {
+          key: TOWNCODE,
+          name: TOWNNAME,
+        }
+    }
+  }
   render() {
-    const { topoData, data, path, setInfo, clearSelectedTown, zoomInSelectedTown } = this.props;
+    const { topoData, data, path, setInfo, clearSelectedTown, zoomInSelectedTown, getColor } = this.props;
     return (
       <g className='townContainer'>
         {
           topoData.features.map((town, i) => {
-            const { TOWNNAME, COUNTYNAME, TOWNCODE } = town.properties;
-            {/* const targetData = data.filter(d => d.county_name === COUNTYNAME && d.township_name === TOWNNAME)[0]; */ }
+            const { key, name } = this.getProperties(town.properties);
+            /* const targetData = data.filter(d => d.county_name === COUNTYNAME && d.township_name === TOWNNAME)[0]; */
             let targetData = data[i];
-            if (targetData.county_name !== COUNTYNAME && targetData.township_name !== TOWNNAME) {
+            /* if (targetData.county_name !== COUNTYNAME && targetData.township_name !== TOWNNAME) {
               console.log('index Wrong!');
               targetData = data.filter(d => d.county_name === COUNTYNAME && d.township_name === TOWNNAME)[0];
-            }
+            } */
             return (
 
               <Path
-                key={TOWNCODE}
+                key={key}
+                code={key}
                 town={town}
-                name={`${COUNTYNAME}${TOWNNAME}`}
+                name={name}
                 path={path}
+                fill={getColor(targetData.township_data)}
                 data={targetData.township_data}
                 description={targetData.township_description}
                 setInfo={setInfo}

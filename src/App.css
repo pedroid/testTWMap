@@ -25,11 +25,10 @@
   color: #61dafb;
 }
 
-.App svg {
-  /* position: absolute;
-  top: 0;
-  left: 0; */
+.App svg * {
+  stroke-linejoin: round;
 }
+
 .infoModal {
   position: absolute;
   right: 20px;

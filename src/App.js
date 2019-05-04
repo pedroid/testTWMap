@@ -12,6 +12,8 @@ export default class App extends Component {
     selectedCounty: '',
     selectedTown: '',
     selectedVillage: '',
+    country: 'tw',
+    villageInfo: {}
   }
   setInfo = (info) => {
     this.setState({
@@ -19,9 +21,22 @@ export default class App extends Component {
     })
   }
   setDatas = ({ counties, towns, villages }) => {
+    const { country } = this.state;
     const selectedCounty = counties[0];
-    const selectedTown = towns.filter(t => t.countyName === selectedCounty.name)[0];
-    const selectedVillage = villages.filter(v => v.countyName === selectedCounty.name && v.townName === selectedTown.name)[0]
+    let selectedTown = {};
+    let selectedVillage = {}
+    switch (country) {
+      case 'kr':
+        selectedTown = towns.filter(t => t.code.indexOf(selectedCounty.code) === 0)[0];
+        selectedVillage = villages.filter(v => v.code.indexOf(selectedTown.code) === 0)[0];
+        break;
+      case 'tw':
+      default:
+        selectedTown = towns.filter(t => t.code.indexOf(selectedCounty.code) === 0)[0];
+        selectedVillage = villages.filter(v => v.code.indexOf(selectedTown.code) === 0)[0]
+        break;
+    }
+
     this.setState({
       counties,
       towns,
@@ -33,9 +48,9 @@ export default class App extends Component {
   }
   onCountySelect = (e) => {
     const { towns, villages } = this.state;
-    const { name } = JSON.parse(e.target.value);
-    const selectedTown = towns.filter(t => t.countyName === name)[0];
-    const selectedVillage = villages.filter(v => v.countyName === name && v.townName === selectedTown.name)[0]
+    const { code } = JSON.parse(e.target.value);
+    const selectedTown = towns.filter(t => t.code.indexOf(code) === 0)[0];
+    const selectedVillage = villages.filter(v => v.code.indexOf(selectedTown.code) === 0)[0];
     this.setState({
       selectedCounty: e.target.value,
       selectedTown: JSON.stringify(selectedTown),
@@ -44,15 +59,14 @@ export default class App extends Component {
   }
   onTownSelect = (e) => {
     const { villages } = this.state;
-    const { name, countyName } = JSON.parse(e.target.value);
-    const selectedVillage = villages.filter(v => v.countyName === countyName && v.townName === name)[0]
+    const { code } = JSON.parse(e.target.value);
+    const selectedVillage = villages.filter(v => v.code === code)[0]
     this.setState({
       selectedTown: e.target.value,
       selectedVillage: JSON.stringify(selectedVillage)
     })
   }
   onVillageSelect = (e) => {
-    const { name } = JSON.parse(e.target.value);
     this.setState({
       selectedVillage: e.target.value
     })
@@ -60,113 +74,118 @@ export default class App extends Component {
   toCounty = () => {
     const { selectedCounty } = this.state;
     if (selectedCounty !== '') {
-      const { name } = JSON.parse(selectedCounty);
-      this.map.goto_county(name)
+      const { code } = JSON.parse(selectedCounty);
+      this.map.goto_county(code)
     }
   }
   getCountyData = () => {
     const { selectedCounty } = this.state;
     if (selectedCounty !== '') {
-      const { name } = JSON.parse(selectedCounty);
-      const data = this.map.get_county_data(name);
+      const { code } = JSON.parse(selectedCounty);
+      const data = this.map.get_county_data(code);
       alert(data);
     }
   }
   setCountyData = () => {
     const { selectedCounty } = this.state;
-    const { name } = JSON.parse(selectedCounty);
+    const { code } = JSON.parse(selectedCounty);
     const data = this.countyData.value;
-    this.map.set_county_data(name, data)
+    this.map.set_county_data(code, data)
   }
   getCountyDescription = () => {
     const { selectedCounty } = this.state;
     if (selectedCounty !== '') {
-      const { name } = JSON.parse(selectedCounty);
-      const desciption = this.map.get_county_description(name)
+      const { code } = JSON.parse(selectedCounty);
+      const desciption = this.map.get_county_description(code)
       alert(desciption);
     }
   }
   setCountyDescription = () => {
     const { selectedCounty } = this.state;
-    const { name } = JSON.parse(selectedCounty);
+    const { code } = JSON.parse(selectedCounty);
     const data = this.countyDescription.value;
-    this.map.set_county_description(name, data)
+    this.map.set_county_description(code, data)
   }
   toTown = () => {
     const { selectedTown } = this.state;
     if (selectedTown !== '') {
-      const { name, countyName } = JSON.parse(selectedTown);
-      this.map.goto_township(countyName, name)
+      const { code } = JSON.parse(selectedTown);
+      this.map.goto_township(code)
     }
   }
   getTownshipData = () => {
     const { selectedTown } = this.state;
     if (selectedTown !== '') {
-      const { name, countyName } = JSON.parse(selectedTown);
-      const data = this.map.get_township_data(countyName, name);
+      const { code } = JSON.parse(selectedTown);
+      const data = this.map.get_township_data(code);
       alert(data);
     }
   }
   setTownshipData = () => {
     const { selectedTown } = this.state;
-    const { name, countyName } = JSON.parse(selectedTown);
+    const { code } = JSON.parse(selectedTown);
     const data = this.townshipData.value;
-    this.map.set_township_data(countyName, name, data)
+    this.map.set_township_data(code, data)
   }
   getTownshipDescription = () => {
     const { selectedTown } = this.state;
     if (selectedTown !== '') {
-      const { name, countyName } = JSON.parse(selectedTown);
-      const desciption = this.map.get_township_description(countyName, name)
+      const { code } = JSON.parse(selectedTown);
+      const desciption = this.map.get_township_description(code)
       alert(desciption);
     }
   }
   setTownshipDescription = () => {
     const { selectedTown } = this.state;
-    const { name, countyName } = JSON.parse(selectedTown);
+    const { code } = JSON.parse(selectedTown);
     const data = this.townshipDescription.value;
-    this.map.set_township_description(countyName, name, data)
+    this.map.set_township_description(code, data)
   }
   toVillage = () => {
     const { selectedVillage } = this.state;
     if (selectedVillage !== '') {
-      const { name, countyName, townName } = JSON.parse(selectedVillage);
-      this.map.goto_village(countyName, townName, name)
+      const { code } = JSON.parse(selectedVillage);
+      this.map.goto_village(code)
     }
   }
   getVillageData = () => {
     const { selectedVillage } = this.state;
     if (selectedVillage !== '') {
-      const { name, countyName, townName } = JSON.parse(selectedVillage);
-      const data = this.map.get_village_data(countyName, townName, name);
+      const { code } = JSON.parse(selectedVillage);
+      const data = this.map.get_village_data(code);
       alert(data);
     }
   }
   setVillageData = () => {
     const { selectedVillage } = this.state;
-    const { name, countyName, townName } = JSON.parse(selectedVillage);
+    const { code } = JSON.parse(selectedVillage);
     const data = this.villageData.value;
-    this.map.set_village_data(countyName, townName, name, data)
+    this.map.set_village_data(code, data)
   }
   getVillageDescription = () => {
     const { selectedVillage } = this.state;
     if (selectedVillage !== '') {
-      const { name, countyName, townName } = JSON.parse(selectedVillage);
-      const desciption = this.map.get_village_description(countyName, townName, name)
+      const { code } = JSON.parse(selectedVillage);
+      const desciption = this.map.get_village_description(code)
       alert(desciption);
     }
   }
   setVillageDescription = () => {
     const { selectedVillage } = this.state;
-    const { name, countyName, townName } = JSON.parse(selectedVillage);
+    const { code } = JSON.parse(selectedVillage);
     const data = this.villageDescription.value;
-    this.map.set_village_description(countyName, townName, name, data)
+    this.map.set_village_description(code, data)
   }
   backToTopLevel = () => {
     this.map.zoom_fit();
   }
   exportToPNG = () => {
     this.map.exportToPNG();
+  }
+  setSelectedVillageInfo = (village) => {
+    this.setState({
+      villageInfo: village
+    })
   }
   render() {
     const {
@@ -176,15 +195,19 @@ export default class App extends Component {
       villages,
       selectedCounty,
       selectedTown,
-      selectedVillage
+      selectedVillage,
+      country,
+      villageInfo
     } = this.state;
     return (
       <div className="App">
         <div style={{ flex: 2 }}>
           <Map
             ref={ref => this.map = ref}
+            country={country}
             setInfo={this.setInfo}
             setDatas={this.setDatas}
+            setSelectedVillageInfo={this.setSelectedVillageInfo}
           />
         </div>
         <div style={{ flex: 1 }}>
@@ -226,8 +249,9 @@ export default class App extends Component {
                 >
                   {
                     towns.map(t => {
-                      const { name, countyName, code } = t;
-                      if (JSON.parse(selectedCounty).name === countyName) {
+                      const { name, code } = t;
+                      const scounty = JSON.parse(selectedCounty);
+                      if (t.code.indexOf(scounty.code) === 0) {
                         return (
                           <option key={code} value={JSON.stringify(t)}>{name}</option>
                         )
@@ -259,8 +283,9 @@ export default class App extends Component {
                 >
                   {
                     villages.map(v => {
-                      const { name, countyName, townName, code } = v;
-                      if (JSON.parse(selectedCounty).name === countyName && JSON.parse(selectedTown).name === townName && name !== '') {
+                      const { name, code } = v;
+                      const stown = JSON.parse(selectedTown);
+                      if ((v.code.indexOf(stown.code) === 0) && name !== '') {
                         return (
                           <option key={code} value={JSON.stringify(v)}>{name}</option>
                         )
@@ -287,6 +312,16 @@ export default class App extends Component {
             <div>
               <input type="button" value="儲存PNG圖檔" onClick={this.exportToPNG} />
             </div>
+            {
+              Object.keys(villageInfo).length !== 0 ? (
+                <div className='controller'>
+                  <p>名稱： {villageInfo.name}</p>
+                  <p>Code： {villageInfo.code}</p>
+                  <p>資料： {villageInfo.data}</p>
+                  <p>描述： {villageInfo.description}</p>
+                </div>
+              ) : null
+            }
           </div>
           <InfoModal info={info} />
         </div>

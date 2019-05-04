@@ -3,17 +3,18 @@ import isEqual from 'react-fast-compare';
 
 class Path extends PureComponent {
   render() {
-    const { county, path, name, data, description, setInfo, clearSelectedCounty, zoomInSelectedCounty } = this.props;
+    const { county, path, name, code, data, description, setInfo, clearSelectedCounty, zoomInSelectedCounty, fill } = this.props;
 
 
     return (
       <g
         id={name}
+        data-code={code}
         className='county'
       >
         <path
-          fill='#FEFEE9'
-          stroke='#777'
+          fill={fill}
+          stroke='white'
           strokeWidth={0.2}
           d={path(county)}
           onMouseOver={() => {
@@ -40,26 +41,46 @@ class County extends Component {
     }
     return false;
   }
+  getProperties = (properties) => {
+    const { country } = this.props;
+    switch (country) {
+      case 'kr':
+        const { name, code } = properties;
+        return {
+          key: code,
+          name
+        }
+      case 'tw':
+      default:
+        const { COUNTYNAME, COUNTYCODE } = properties;
+        return {
+          key: COUNTYCODE,
+          name: COUNTYNAME,
+        }
+    }
+  }
   render() {
-    const { topoData, data, path, setInfo, clearSelectedCounty, zoomInSelectedCounty } = this.props;
+    const { topoData, data, path, setInfo, clearSelectedCounty, zoomInSelectedCounty, getColor } = this.props;
 
     return (
       <g className='countyContainer'>
         {
           topoData.features.map((county, i) => {
-            const { COUNTYNAME, COUNTYCODE } = county.properties;
-            {/* const targetData = data.filter(d => d.county_name === COUNTYNAME)[0]; */ }
+            const { key, name } = this.getProperties(county.properties)
+            /* const targetData = data.filter(d => d.county_name === COUNTYNAME)[0]; */
             let targetData = data[i];
-            if (targetData.county_name !== COUNTYNAME) {
+            if (targetData.county_name !== name) {
               console.log('index Wrong!');
-              targetData = data.filter(d => d.county_name === COUNTYNAME)[0];
+              targetData = data.filter(d => d.county_name === name)[0];
             }
             return (
               <Path
-                key={COUNTYCODE}
+                key={key}
+                code={key}
                 county={county}
-                name={COUNTYNAME}
+                name={name}
                 path={path}
+                fill={getColor(targetData.county_data)}
                 data={targetData.county_data}
                 description={targetData.county_description}
                 setInfo={setInfo}

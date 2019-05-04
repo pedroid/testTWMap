@@ -1,0 +1,27 @@
+[
+  {
+    "value_min": 0,
+    "value_max": 20,
+    "color": "#4da6ff"
+  },
+  {
+    "value_min": 21,
+    "value_max": 40,
+    "color": "#0080ff"
+  },
+  {
+    "value_min": 41,
+    "value_max": 60,
+    "color": "#0066cc"
+  },
+  {
+    "value_min": 61,
+    "value_max": 80,
+    "color": "#0059b3"
+  },
+  {
+    "value_min": 81,
+    "value_max": 100,
+    "color": "#004080"
+  }
+]
