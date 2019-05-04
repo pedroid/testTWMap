@@ -12,12 +12,7 @@ import update from 'immutability-helper';
 import County from './County';
 import Township from './Township';
 import Village from './Village';
-import twVillage from './assets/Taiwan/tw-village.topo';
-import twTownship from './assets/Taiwan/tw-town.topo';
-import twCounty from './assets/Taiwan/tw-county.topo';
-import krProvince from './assets/South Korea/skorea-provinces-2018-topo';
-import krMunicipality from './assets/South Korea/skorea-municipalities-2018-topo';
-import krSubMunicipality from './assets/South Korea/skorea-submunicipalities-2018-topo';
+
 import RangeColor from './assets/data_range_color';
 
 export default class Map extends Component {
@@ -26,9 +21,9 @@ export default class Map extends Component {
 
 
 
-    let topoCounty;
-    let topoTownship;
-    let topoVillage;
+    // let topoCounty;
+    // let topoTownship;
+    // let topoVillage;
     /**
      * Taiwan: center([121, 23.9]) scale(10000)
      * SouthKorea: center([128, 36]) scale(7000)
@@ -38,34 +33,41 @@ export default class Map extends Component {
 
     switch (props.country) {
       case 'kr':
-        topoCounty = topojson.feature(krProvince, krProvince.objects.skorea_provinces_2018_geo);
-        topoTownship = topojson.feature(krMunicipality, krMunicipality.objects.skorea_municipalities_2018_geo);
-        topoVillage = topojson.feature(krSubMunicipality, krSubMunicipality.objects.skorea_submunicipalities_2018_geo);
+        // topoCounty = topojson.feature(krProvince, krProvince.objects.skorea_provinces_2018_geo);
+        // topoTownship = topojson.feature(krMunicipality, krMunicipality.objects.skorea_municipalities_2018_geo);
+        // topoVillage = topojson.feature(krSubMunicipality, krSubMunicipality.objects.skorea_submunicipalities_2018_geo);
         center = [128, 36];
         scale = 7000;
         break;
       case 'tw':
       default:
-        topoCounty = topojson.feature(twCounty, twCounty.objects.county);
-        topoVillage = topojson.feature(twVillage, twVillage.objects.village);
-        topoTownship = topojson.feature(twTownship, twTownship.objects.town);
+        // import('./MapSources')
+        //   .then(({ twVillage, twTownship, twCounty }) => {
+        //     topoCounty = topojson.feature(twCounty, twCounty.objects.county);
+        //     topoVillage = topojson.feature(twVillage, twVillage.objects.village);
+        //     topoTownship = topojson.feature(twTownship, twTownship.objects.town);
+        //   })
+        //   .catch(err => {
+        //     // Handle failure
+        //   });
+
         center = [121, 23.9];
         scale = 10000;
         break;
     }
     // for Demo only
-    const { counties, county_data, county_template } = this.demoCountyData(props.country, topoCounty);
-    const { towns, township_data, township_template } = this.demoTownshipData(props.country, topoTownship);
-    const { villages, village_data, village_template } = this.demoVillageData(props.country, topoVillage);
+    // const { counties, county_data, county_template } = this.demoCountyData(props.country, topoCounty);
+    // const { towns, township_data, township_template } = this.demoTownshipData(props.country, topoTownship);
+    // const { villages, village_data, village_template } = this.demoVillageData(props.country, topoVillage);
     // this.writeTemplateToFile('county_data', county_template)
     // this.writeTemplateToFile('township_data', township_template)
     // this.writeTemplateToFile('village_data', village_template)
 
-    props.setDatas({
-      counties: counties,
-      towns: towns,
-      villages: villages
-    });
+    // props.setDatas({
+    //   counties: counties,
+    //   towns: towns,
+    //   villages: villages
+    // });
     //---------------------------------
 
     this.selectedCounty = {
@@ -96,12 +98,13 @@ export default class Map extends Component {
       width,
       height,
       center: [width / 2, height / 2],
-      topoCounty: topoCounty,
-      topoTownship: topoTownship,
-      topoVillage: topoVillage,
-      county_data,
-      village_data,
-      township_data
+      loading: true,
+      // topoCounty: topoCounty,
+      // topoTownship: topoTownship,
+      // topoVillage: topoVillage,
+      // county_data,
+      // village_data,
+      // township_data
     }
   }
   demoCountyData = (country, topoCounty) => {
@@ -296,13 +299,89 @@ export default class Map extends Component {
     }
     return false
   }
+  componentWillMount() {
+    const { country, setDatas } = this.props;
+    switch (country) {
+      case 'kr':
+        import('./assets/South Korea/MapSources')
+          .then(({ krProvince, krMunicipality, krSubMunicipality }) => {
+            const topoCounty = topojson.feature(krProvince, krProvince.objects.skorea_provinces_2018_geo);
+            const topoTownship = topojson.feature(krMunicipality, krMunicipality.objects.skorea_municipalities_2018_geo);
+            const topoVillage = topojson.feature(krSubMunicipality, krSubMunicipality.objects.skorea_submunicipalities_2018_geo);
 
+            const { counties, county_data, county_template } = this.demoCountyData(country, topoCounty);
+            const { towns, township_data, township_template } = this.demoTownshipData(country, topoTownship);
+            const { villages, village_data, village_template } = this.demoVillageData(country, topoVillage);
+            // this.writeTemplateToFile('county_data', county_template)
+            // this.writeTemplateToFile('township_data', township_template)
+            // this.writeTemplateToFile('village_data', village_template)
+            setDatas({
+              counties: counties,
+              towns: towns,
+              villages: villages
+            });
+            this.setState({
+              loading: false,
+              topoCounty: topoCounty,
+              topoTownship: topoTownship,
+              topoVillage: topoVillage,
+              county_data,
+              village_data,
+              township_data
+            }, () => {
+              select(this.mapRef)
+                .on('wheel', throttle(this.wheelEvent, 400));
+            })
+          })
+          .catch(err => {
+            // Handle failure
+          });
+
+        break;
+      case 'tw':
+      default:
+        import('./assets/Taiwan/MapSources')
+          .then(({ twVillage, twTownship, twCounty }) => {
+            const topoCounty = topojson.feature(twCounty, twCounty.objects.county);
+            const topoVillage = topojson.feature(twVillage, twVillage.objects.village);
+            const topoTownship = topojson.feature(twTownship, twTownship.objects.town);
+            const { counties, county_data, county_template } = this.demoCountyData(country, topoCounty);
+            const { towns, township_data, township_template } = this.demoTownshipData(country, topoTownship);
+            const { villages, village_data, village_template } = this.demoVillageData(country, topoVillage);
+            // this.writeTemplateToFile('county_data', county_template)
+            // this.writeTemplateToFile('township_data', township_template)
+            // this.writeTemplateToFile('village_data', village_template)
+            setDatas({
+              counties: counties,
+              towns: towns,
+              villages: villages
+            });
+            this.setState({
+              loading: false,
+              topoCounty: topoCounty,
+              topoTownship: topoTownship,
+              topoVillage: topoVillage,
+              county_data,
+              village_data,
+              township_data
+            }, () => {
+              select(this.mapRef)
+                .on('wheel', throttle(this.wheelEvent, 400));
+            })
+          })
+          .catch(err => {
+            // Handle failure
+          });
+
+        break;
+    }
+  }
   componentDidMount() {
     /**
       mouse wheel event
      */
-    select(this.mapRef)
-      .on('wheel', throttle(this.wheelEvent, 400));
+    // select(this.mapRef)
+    //   .on('wheel', throttle(this.wheelEvent, 400));
   }
   /**
    * 清除已選的 縣市 
@@ -882,8 +961,15 @@ export default class Map extends Component {
   }
   render() {
     const { setInfo, country, setSelectedVillageInfo } = this.props;
-    const { height, topoCounty, topoTownship, topoVillage, county_data, township_data, village_data } = this.state;
-    console.log('render Map')
+    const { height, topoCounty, topoTownship, topoVillage, county_data, township_data, village_data, loading } = this.state;
+
+    if (loading) {
+      return (
+        <div>
+          <h1>載入地圖中</h1>
+        </div>
+      )
+    }
     return (
       <svg ref={ref => this.mapRef = ref} width={'100%'} height={height}>
         <County
