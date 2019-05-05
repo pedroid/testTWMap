@@ -12,7 +12,7 @@ class Path extends PureComponent {
       setInfo,
       clearSelectedVillage,
       zoomInSelectedVillage,
-      setSelectedVillageInfo,
+      setSelectedInfo,
       fill
     } = this.props;
     const { VILLNAME, TOWNNAME, COUNTYNAME } = village.properties;
@@ -42,7 +42,7 @@ class Path extends PureComponent {
             });
           }}
           onClick={() => {
-            setSelectedVillageInfo({
+            setSelectedInfo({
               name,
               code,
               data,
@@ -92,7 +92,7 @@ class Village extends Component {
       clearSelectedVillage,
       zoomInSelectedVillage,
       getColor,
-      setSelectedVillageInfo
+      setSelectedInfo
     } = this.props;
 
     return (
@@ -119,7 +119,7 @@ class Village extends Component {
                 setInfo={setInfo}
                 clearSelectedVillage={clearSelectedVillage}
                 zoomInSelectedVillage={zoomInSelectedVillage}
-                setSelectedVillageInfo={setSelectedVillageInfo}
+                setSelectedInfo={setSelectedInfo}
               />
             )
           })

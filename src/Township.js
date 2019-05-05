@@ -3,7 +3,19 @@ import isEqual from 'react-fast-compare';
 
 class Path extends PureComponent {
   render() {
-    const { town, path, name, code, data, description, setInfo, clearSelectedTown, zoomInSelectedTown, fill } = this.props;
+    const {
+      town,
+      path,
+      name,
+      code,
+      data,
+      description,
+      setInfo,
+      clearSelectedTown,
+      zoomInSelectedTown,
+      fill,
+      setSelectedInfo
+    } = this.props;
     const { TOWNNAME, COUNTYNAME } = town.properties;
 
     return (
@@ -30,6 +42,12 @@ class Path extends PureComponent {
             });
           }}
           onClick={() => {
+            setSelectedInfo({
+              name,
+              code,
+              data,
+              description
+            })
             clearSelectedTown();
             zoomInSelectedTown(town)
           }}
@@ -66,7 +84,16 @@ class Township extends Component {
     }
   }
   render() {
-    const { topoData, data, path, setInfo, clearSelectedTown, zoomInSelectedTown, getColor } = this.props;
+    const {
+      topoData,
+      data,
+      path,
+      setInfo,
+      clearSelectedTown,
+      zoomInSelectedTown,
+      getColor,
+      setSelectedInfo
+    } = this.props;
     return (
       <g className='townContainer'>
         {
@@ -92,6 +119,7 @@ class Township extends Component {
                 setInfo={setInfo}
                 clearSelectedTown={clearSelectedTown}
                 zoomInSelectedTown={zoomInSelectedTown}
+                setSelectedInfo={setSelectedInfo}
               />
             )
           })

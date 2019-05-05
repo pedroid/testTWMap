@@ -13,7 +13,7 @@ export default class App extends Component {
     selectedTown: '',
     selectedVillage: '',
     country: 'tw',
-    villageInfo: {}
+    selectedInfo: {}
   }
   setInfo = (info) => {
     this.setState({
@@ -182,9 +182,9 @@ export default class App extends Component {
   exportToPNG = () => {
     this.map.exportToPNG();
   }
-  setSelectedVillageInfo = (village) => {
+  setSelectedInfo = (selectedInfo) => {
     this.setState({
-      villageInfo: village
+      selectedInfo
     })
   }
   render() {
@@ -197,7 +197,7 @@ export default class App extends Component {
       selectedTown,
       selectedVillage,
       country,
-      villageInfo
+      selectedInfo
     } = this.state;
     return (
       <div className="App">
@@ -207,7 +207,7 @@ export default class App extends Component {
             country={country}
             setInfo={this.setInfo}
             setDatas={this.setDatas}
-            setSelectedVillageInfo={this.setSelectedVillageInfo}
+            setSelectedInfo={this.setSelectedInfo}
           />
         </div>
         <div style={{ flex: 1 }}>
@@ -313,12 +313,12 @@ export default class App extends Component {
               <input type="button" value="儲存PNG圖檔" onClick={this.exportToPNG} />
             </div>
             {
-              Object.keys(villageInfo).length !== 0 ? (
+              Object.keys(selectedInfo).length !== 0 ? (
                 <div className='controller'>
-                  <p>名稱： {villageInfo.name}</p>
-                  <p>Code： {villageInfo.code}</p>
-                  <p>資料： {villageInfo.data}</p>
-                  <p>描述： {villageInfo.description}</p>
+                  <p>名稱： {selectedInfo.name}</p>
+                  <p>Code： {selectedInfo.code}</p>
+                  <p>資料： {selectedInfo.data}</p>
+                  <p>描述： {selectedInfo.description}</p>
                 </div>
               ) : null
             }

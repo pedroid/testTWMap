@@ -715,8 +715,8 @@ export default class Map extends Component {
    * zoom in 至指定 縣市
    */
   goto_county = (code) => {
-    const { topoCounty } = this.state;
-    const { country } = this.props;
+    const { topoCounty, county_data } = this.state;
+    const { country, setSelectedInfo } = this.props;
     let targetCounty = []
     switch (country) {
       case 'kr':
@@ -727,7 +727,13 @@ export default class Map extends Component {
         targetCounty = topoCounty.features.filter(c => c.properties.COUNTYCODE === code);
         break;
     }
-
+    const targetData = county_data.filter(vd => vd.county_code === code)[0];
+    setSelectedInfo({
+      name: targetData.county_name,
+      code: targetData.county_code,
+      data: targetData.county_data,
+      description: targetData.county_description
+    });
     this.zoomInSelectedCounty(targetCounty[0]);
   }
   /**
@@ -784,8 +790,8 @@ export default class Map extends Component {
    * zoom in 至指定 鄉鎮區
    */
   goto_township = (code) => {
-    const { topoCounty, topoTownship } = this.state;
-    const { country } = this.props;
+    const { topoCounty, topoTownship, township_data } = this.state;
+    const { country, setSelectedInfo } = this.props;
     let targetCounty = [];
     let targetTown = [];
 
@@ -800,7 +806,13 @@ export default class Map extends Component {
         targetTown = topoTownship.features.filter(t => t.properties.TOWNCODE === code);
         break;
     }
-
+    const targetData = township_data.filter(vd => vd.township_code === code)[0];
+    setSelectedInfo({
+      name: targetData.township_name,
+      code: targetData.township_code,
+      data: targetData.township_data,
+      description: targetData.township_description
+    });
     this.zoomInSelectedCounty(targetCounty[0], false);
     this.zoomInSelectedTown(targetTown[0]);
   }
@@ -867,7 +879,7 @@ export default class Map extends Component {
    */
   goto_village = (code) => {
     const { topoCounty, topoTownship, topoVillage, village_data } = this.state;
-    const { country, setSelectedVillageInfo } = this.props;
+    const { country, setSelectedInfo } = this.props;
     let targetCounty = [];
     let targetTown = [];
     let targetVillage = [];
@@ -885,8 +897,8 @@ export default class Map extends Component {
         targetVillage = topoVillage.features.filter(v => v.properties.VILLCODE === code);
         break;
     }
-    const targetData = village_data.filter(vd => vd.village_code === code)[0]
-    setSelectedVillageInfo({
+    const targetData = village_data.filter(vd => vd.village_code === code)[0];
+    setSelectedInfo({
       name: targetData.village_name,
       code: targetData.village_code,
       data: targetData.village_data,
@@ -960,7 +972,7 @@ export default class Map extends Component {
     return color;
   }
   render() {
-    const { setInfo, country, setSelectedVillageInfo } = this.props;
+    const { setInfo, country, setSelectedInfo } = this.props;
     const { height, topoCounty, topoTownship, topoVillage, county_data, township_data, village_data, loading } = this.state;
 
     if (loading) {
@@ -981,6 +993,7 @@ export default class Map extends Component {
           clearSelectedCounty={this.clearSelectedCounty}
           zoomInSelectedCounty={this.zoomInSelectedCounty}
           getColor={this.getDataRangeColor}
+          setSelectedInfo={setSelectedInfo}
         />
         <Township
           country={country}
@@ -991,6 +1004,7 @@ export default class Map extends Component {
           clearSelectedTown={this.clearSelectedTown}
           zoomInSelectedTown={this.zoomInSelectedTown}
           getColor={this.getDataRangeColor}
+          setSelectedInfo={setSelectedInfo}
         />
         <Village
           country={country}
@@ -1001,7 +1015,7 @@ export default class Map extends Component {
           clearSelectedVillage={this.clearSelectedVillage}
           zoomInSelectedVillage={this.zoomInSelectedVillage}
           getColor={this.getDataRangeColor}
-          setSelectedVillageInfo={setSelectedVillageInfo}
+          setSelectedInfo={setSelectedInfo}
         />
       </svg>
     );

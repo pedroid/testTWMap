@@ -3,7 +3,19 @@ import isEqual from 'react-fast-compare';
 
 class Path extends PureComponent {
   render() {
-    const { county, path, name, code, data, description, setInfo, clearSelectedCounty, zoomInSelectedCounty, fill } = this.props;
+    const {
+      county,
+      path,
+      name,
+      code,
+      data,
+      description,
+      setInfo,
+      clearSelectedCounty,
+      zoomInSelectedCounty,
+      fill,
+      setSelectedInfo
+    } = this.props;
 
 
     return (
@@ -25,6 +37,12 @@ class Path extends PureComponent {
             });
           }}
           onClick={() => {
+            setSelectedInfo({
+              name,
+              code,
+              data,
+              description
+            })
             clearSelectedCounty();
             zoomInSelectedCounty(county);
           }}
@@ -60,7 +78,16 @@ class County extends Component {
     }
   }
   render() {
-    const { topoData, data, path, setInfo, clearSelectedCounty, zoomInSelectedCounty, getColor } = this.props;
+    const {
+      topoData,
+      data,
+      path,
+      setInfo,
+      clearSelectedCounty,
+      zoomInSelectedCounty,
+      getColor,
+      setSelectedInfo
+    } = this.props;
 
     return (
       <g className='countyContainer'>
@@ -86,6 +113,7 @@ class County extends Component {
                 setInfo={setInfo}
                 clearSelectedCounty={clearSelectedCounty}
                 zoomInSelectedCounty={zoomInSelectedCounty}
+                setSelectedInfo={setSelectedInfo}
               />
             )
           })
