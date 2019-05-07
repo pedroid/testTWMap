@@ -19,6 +19,7 @@ class Manager {
     this.county_data.clear();
     this.township_data.clear();
     this.village_data.clear();
+    this.pathColorUpdater.clear();
   }
   getData = (type, code) => {
     switch (type) {
