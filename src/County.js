@@ -1,22 +1,36 @@
-import React, { Component, PureComponent } from 'react';
-import isEqual from 'react-fast-compare';
+import React, { PureComponent } from 'react';
+import { MapManager } from './MapManager'
 
 class Path extends PureComponent {
+  constructor(props) {
+    super(props);
+    const { data } = MapManager.getData('county', props.code);
+    const color = MapManager.getColor(data);
+    this.state = {
+      color
+    }
+  }
+  componentDidMount() {
+    const { code } = this.props;
+    MapManager.onSubscribe(code, this.updateColor)
+  }
+  updateColor = (color) => {
+    this.setState({
+      color
+    })
+  }
   render() {
     const {
       county,
       path,
-      name,
       code,
-      data,
-      description,
       setInfo,
       clearSelectedCounty,
       zoomInSelectedCounty,
-      fill,
       setSelectedInfo
     } = this.props;
 
+    const { name, color } = this.state;
 
     return (
       <g
@@ -25,24 +39,15 @@ class Path extends PureComponent {
         className='county'
       >
         <path
-          fill={fill}
+          fill={color}
           stroke='white'
           strokeWidth={0.2}
           d={path(county)}
           onMouseOver={() => {
-            setInfo({
-              name,
-              data,
-              description
-            });
+            setInfo('county', code);
           }}
           onClick={() => {
-            setSelectedInfo({
-              name,
-              code,
-              data,
-              description
-            })
+            setSelectedInfo('county', code)
             clearSelectedCounty();
             zoomInSelectedCounty(county);
           }}
@@ -51,14 +56,7 @@ class Path extends PureComponent {
     )
   }
 }
-class County extends Component {
-  shouldComponentUpdate(nextProps) {
-    const { data } = this.props;
-    if (!isEqual(data, nextProps.data)) {
-      return true
-    }
-    return false;
-  }
+class County extends PureComponent {
   getProperties = (properties) => {
     const { country } = this.props;
     switch (country) {
@@ -80,12 +78,10 @@ class County extends Component {
   render() {
     const {
       topoData,
-      data,
       path,
       setInfo,
       clearSelectedCounty,
       zoomInSelectedCounty,
-      getColor,
       setSelectedInfo
     } = this.props;
 
@@ -93,23 +89,14 @@ class County extends Component {
       <g className='countyContainer'>
         {
           topoData.features.map((county, i) => {
-            const { key, name } = this.getProperties(county.properties)
-            /* const targetData = data.filter(d => d.county_name === COUNTYNAME)[0]; */
-            let targetData = data[i];
-            if (targetData.county_name !== name) {
-              console.log('index Wrong!');
-              targetData = data.filter(d => d.county_name === name)[0];
-            }
+            const { key } = this.getProperties(county.properties)
+
             return (
               <Path
                 key={key}
                 code={key}
                 county={county}
-                name={name}
                 path={path}
-                fill={getColor(targetData.county_data)}
-                data={targetData.county_data}
-                description={targetData.county_description}
                 setInfo={setInfo}
                 clearSelectedCounty={clearSelectedCounty}
                 zoomInSelectedCounty={zoomInSelectedCounty}

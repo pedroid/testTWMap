@@ -1,74 +1,22 @@
 import React, { Component } from 'react';
 import './App.css';
 import * as topojson from 'topojson';
-import * as d3 from 'd3';
-import { select } from 'd3-selection';
+import { zoom, zoomIdentity } from 'd3-zoom';
+import { select, event } from 'd3-selection';
 import { geoPath, geoMercator } from 'd3-geo';
 import { saveSvgAsPng } from 'save-svg-as-png';
 import throttle from 'lodash.throttle';
-import isEqual from 'react-fast-compare';
-import update from 'immutability-helper';
 
 import County from './County';
 import Township from './Township';
 import Village from './Village';
 
-import RangeColor from './assets/data_range_color';
+import { MapManager } from './MapManager'
+
 
 export default class Map extends Component {
   constructor(props) {
     super(props);
-
-
-
-    // let topoCounty;
-    // let topoTownship;
-    // let topoVillage;
-    /**
-     * Taiwan: center([121, 23.9]) scale(10000)
-     * SouthKorea: center([128, 36]) scale(7000)
-     */
-    let center;
-    let scale;
-
-    switch (props.country) {
-      case 'kr':
-        // topoCounty = topojson.feature(krProvince, krProvince.objects.skorea_provinces_2018_geo);
-        // topoTownship = topojson.feature(krMunicipality, krMunicipality.objects.skorea_municipalities_2018_geo);
-        // topoVillage = topojson.feature(krSubMunicipality, krSubMunicipality.objects.skorea_submunicipalities_2018_geo);
-        center = [128, 36];
-        scale = 7000;
-        break;
-      case 'tw':
-      default:
-        // import('./MapSources')
-        //   .then(({ twVillage, twTownship, twCounty }) => {
-        //     topoCounty = topojson.feature(twCounty, twCounty.objects.county);
-        //     topoVillage = topojson.feature(twVillage, twVillage.objects.village);
-        //     topoTownship = topojson.feature(twTownship, twTownship.objects.town);
-        //   })
-        //   .catch(err => {
-        //     // Handle failure
-        //   });
-
-        center = [121, 23.9];
-        scale = 10000;
-        break;
-    }
-    // for Demo only
-    // const { counties, county_data, county_template } = this.demoCountyData(props.country, topoCounty);
-    // const { towns, township_data, township_template } = this.demoTownshipData(props.country, topoTownship);
-    // const { villages, village_data, village_template } = this.demoVillageData(props.country, topoVillage);
-    // this.writeTemplateToFile('county_data', county_template)
-    // this.writeTemplateToFile('township_data', township_template)
-    // this.writeTemplateToFile('village_data', village_template)
-
-    // props.setDatas({
-    //   counties: counties,
-    //   towns: towns,
-    //   villages: villages
-    // });
-    //---------------------------------
 
     this.selectedCounty = {
       selection: [],
@@ -82,29 +30,17 @@ export default class Map extends Component {
       selection: null,
       element: null
     };
-    this.currentViewport = {
-      x: 480,
-      y: 480,
-      w: 960
-    };
+
     const width = (document.body.clientWidth / 3) * 2 - 10;
     const height = document.body.clientHeight;
 
-    this.zoom = d3.zoom().on('zoom', this.zoomEvent);
+    this.zoom = zoom().on('zoom', this.zoomEvent);
 
-    const prj = geoMercator().center(center).translate([width / 2, height / 2]).scale(scale);
-    this.path = geoPath().projection(prj)
     this.state = {
       width,
       height,
       center: [width / 2, height / 2],
-      loading: true,
-      // topoCounty: topoCounty,
-      // topoTownship: topoTownship,
-      // topoVillage: topoVillage,
-      // county_data,
-      // village_data,
-      // township_data
+      loading: true
     }
   }
   demoCountyData = (country, topoCounty) => {
@@ -118,6 +54,11 @@ export default class Map extends Component {
           counties.push({
             name,
             code
+          })
+          MapManager.setCountyData(code, {
+            name: name,
+            data: parseInt(Math.random() * 100, 10),
+            description: `我是 ${name} 的描述內容`
           })
           county_data.push({
             county_name: name,
@@ -140,6 +81,11 @@ export default class Map extends Component {
           counties.push({
             name: COUNTYNAME,
             code: COUNTYCODE
+          })
+          MapManager.setCountyData(COUNTYCODE, {
+            name: COUNTYNAME,
+            data: parseInt(Math.random() * 100, 10),
+            description: `我是 ${COUNTYNAME} 的描述內容`
           })
           county_data.push({
             county_name: COUNTYNAME,
@@ -174,6 +120,11 @@ export default class Map extends Component {
             name,
             code
           });
+          MapManager.setTownshipData(code, {
+            name: name,
+            data: parseInt(Math.random() * 100, 10),
+            description: `我是 ${name} 的描述內容`
+          })
           township_data.push({
             township_name: name,
             township_code: code,
@@ -196,6 +147,11 @@ export default class Map extends Component {
             name: TOWNNAME,
             code: TOWNCODE
           });
+          MapManager.setTownshipData(TOWNCODE, {
+            name: TOWNNAME,
+            data: parseInt(Math.random() * 100, 10),
+            description: `我是 ${COUNTYNAME}${TOWNNAME} 的描述內容`
+          })
           township_data.push({
             township_name: TOWNNAME,
             township_code: TOWNCODE,
@@ -230,6 +186,11 @@ export default class Map extends Component {
             name,
             code
           });
+          MapManager.setVillageData(code, {
+            name: name,
+            data: parseInt(Math.random() * 100, 10),
+            description: `我是 ${name} 的描述內容`
+          })
           village_data.push({
             village_name: name,
             village_code: code,
@@ -251,6 +212,11 @@ export default class Map extends Component {
           villages.push({
             name: VILLNAME,
             code: VILLCODE
+          });
+          MapManager.setVillageData(VILLCODE, {
+            name: VILLNAME,
+            data: parseInt(Math.random() * 100, 10),
+            description: `我是 ${COUNTYNAME}${TOWNNAME}${VILLNAME} 的描述內容`
           });
           village_data.push({
             village_name: VILLNAME,
@@ -287,94 +253,19 @@ export default class Map extends Component {
     document.body.removeChild(a);
   }
   shouldComponentUpdate(nextProps, nextState) {
-    const { county_data, village_data, township_data } = this.state;
-    if (!isEqual(county_data, nextState.county_data)) {
-      return true
+    const { loading } = this.state;
+    const { country } = this.props;
+    if (country !== nextProps.country) {
+      this.initialMapSouces(nextProps.country)
     }
-    if (!isEqual(village_data, nextState.village_data)) {
-      return true
-    }
-    if (!isEqual(township_data, nextState.township_data)) {
-      return true
+    if (loading !== nextState.loading) {
+      return true;
     }
     return false
   }
   componentWillMount() {
-    const { country, setDatas } = this.props;
-    switch (country) {
-      case 'kr':
-        import('./assets/South Korea/MapSources')
-          .then(({ krProvince, krMunicipality, krSubMunicipality }) => {
-            const topoCounty = topojson.feature(krProvince, krProvince.objects.skorea_provinces_2018_geo);
-            const topoTownship = topojson.feature(krMunicipality, krMunicipality.objects.skorea_municipalities_2018_geo);
-            const topoVillage = topojson.feature(krSubMunicipality, krSubMunicipality.objects.skorea_submunicipalities_2018_geo);
-
-            const { counties, county_data, county_template } = this.demoCountyData(country, topoCounty);
-            const { towns, township_data, township_template } = this.demoTownshipData(country, topoTownship);
-            const { villages, village_data, village_template } = this.demoVillageData(country, topoVillage);
-            // this.writeTemplateToFile('county_data', county_template)
-            // this.writeTemplateToFile('township_data', township_template)
-            // this.writeTemplateToFile('village_data', village_template)
-            setDatas({
-              counties: counties,
-              towns: towns,
-              villages: villages
-            });
-            this.setState({
-              loading: false,
-              topoCounty: topoCounty,
-              topoTownship: topoTownship,
-              topoVillage: topoVillage,
-              county_data,
-              village_data,
-              township_data
-            }, () => {
-              select(this.mapRef)
-                .on('wheel', throttle(this.wheelEvent, 400));
-            })
-          })
-          .catch(err => {
-            // Handle failure
-          });
-
-        break;
-      case 'tw':
-      default:
-        import('./assets/Taiwan/MapSources')
-          .then(({ twVillage, twTownship, twCounty }) => {
-            const topoCounty = topojson.feature(twCounty, twCounty.objects.county);
-            const topoVillage = topojson.feature(twVillage, twVillage.objects.village);
-            const topoTownship = topojson.feature(twTownship, twTownship.objects.town);
-            const { counties, county_data, county_template } = this.demoCountyData(country, topoCounty);
-            const { towns, township_data, township_template } = this.demoTownshipData(country, topoTownship);
-            const { villages, village_data, village_template } = this.demoVillageData(country, topoVillage);
-            // this.writeTemplateToFile('county_data', county_template)
-            // this.writeTemplateToFile('township_data', township_template)
-            // this.writeTemplateToFile('village_data', village_template)
-            setDatas({
-              counties: counties,
-              towns: towns,
-              villages: villages
-            });
-            this.setState({
-              loading: false,
-              topoCounty: topoCounty,
-              topoTownship: topoTownship,
-              topoVillage: topoVillage,
-              county_data,
-              village_data,
-              township_data
-            }, () => {
-              select(this.mapRef)
-                .on('wheel', throttle(this.wheelEvent, 400));
-            })
-          })
-          .catch(err => {
-            // Handle failure
-          });
-
-        break;
-    }
+    const { country } = this.props;
+    this.initialMapSouces(country)
   }
   componentDidMount() {
     /**
@@ -382,6 +273,104 @@ export default class Map extends Component {
      */
     // select(this.mapRef)
     //   .on('wheel', throttle(this.wheelEvent, 400));
+  }
+  initialMapSouces = (country) => {
+    const { width, height } = this.state;
+    const { setDatas } = this.props;
+
+    this.setState({
+      loading: true
+    }, () => {
+      MapManager.init()
+      switch (country) {
+        case 'kr':
+          import('./assets/South Korea/MapSources')
+            .then(({ krProvince, krMunicipality, krSubMunicipality }) => {
+              const topoCounty = topojson.feature(krProvince, krProvince.objects.skorea_provinces_2018_geo);
+              const topoTownship = topojson.feature(krMunicipality, krMunicipality.objects.skorea_municipalities_2018_geo);
+              const topoVillage = topojson.feature(krSubMunicipality, krSubMunicipality.objects.skorea_submunicipalities_2018_geo);
+
+              const { counties, county_data, county_template } = this.demoCountyData(country, topoCounty);
+              const { towns, township_data, township_template } = this.demoTownshipData(country, topoTownship);
+              const { villages, village_data, village_template } = this.demoVillageData(country, topoVillage);
+              // this.writeTemplateToFile('county_data', county_template)
+              // this.writeTemplateToFile('township_data', township_template)
+              // this.writeTemplateToFile('village_data', village_template)
+              setDatas({
+                counties: counties,
+                towns: towns,
+                villages: villages
+              });
+
+              const center = [128, 36];
+              const scale = 7000;
+              const prj = geoMercator().center(center).translate([width / 2, height / 2]).scale(scale);
+              this.path = geoPath().projection(prj);
+              // console.log('done');
+
+              this.setState({
+                loading: false,
+                topoCounty: topoCounty,
+                topoTownship: topoTownship,
+                topoVillage: topoVillage,
+                county_data,
+                village_data,
+                township_data
+              }, () => {
+                select(this.mapRef)
+                  .on('wheel', throttle(this.wheelEvent, 400));
+              })
+            })
+            .catch(err => {
+              console.log(err);
+              // Handle failure
+            });
+
+          break;
+        case 'tw':
+        default:
+          import('./assets/Taiwan/MapSources')
+            .then(({ twVillage, twTownship, twCounty }) => {
+              const topoCounty = topojson.feature(twCounty, twCounty.objects.county);
+              const topoVillage = topojson.feature(twVillage, twVillage.objects.village);
+              const topoTownship = topojson.feature(twTownship, twTownship.objects.town);
+              const { counties, county_data, county_template } = this.demoCountyData(country, topoCounty);
+              const { towns, township_data, township_template } = this.demoTownshipData(country, topoTownship);
+              const { villages, village_data, village_template } = this.demoVillageData(country, topoVillage);
+              // this.writeTemplateToFile('county_data', county_template)
+              // this.writeTemplateToFile('township_data', township_template)
+              // this.writeTemplateToFile('village_data', village_template)
+              setDatas({
+                counties: counties,
+                towns: towns,
+                villages: villages
+              });
+              const center = [121, 23.9];
+              const scale = 10000;
+              const prj = geoMercator().center(center).translate([width / 2, height / 2]).scale(scale);
+              this.path = geoPath().projection(prj);
+              // console.log('done');
+              this.setState({
+                loading: false,
+                topoCounty: topoCounty,
+                topoTownship: topoTownship,
+                topoVillage: topoVillage,
+                county_data,
+                village_data,
+                township_data
+              }, () => {
+                select(this.mapRef)
+                  .on('wheel', throttle(this.wheelEvent, 400));
+              })
+            })
+            .catch(err => {
+              console.log(err);
+              // Handle failure
+            });
+
+          break;
+      }
+    })
   }
   /**
    * 清除已選的 縣市 
@@ -636,23 +625,11 @@ export default class Map extends Component {
     const scale = (height / vw) * 0.7;
     // translate = [width / 2 - scale * x, height / 2 - scale * y],
     const translate = [center[0] - x * scale, center[1] - y * scale];
-    // if (scale > 25) {
-    //   select(this.mapRef)
-    //   .selectAll('path')
-    //   .attr('stroke-width', 0.05)
-    // } else if (scale > 30) {
-    //   select(this.mapRef)
-    //   .selectAll('path')
-    //   .attr('stroke-width', 0.02)
-    // } else {
-    //   select(this.mapRef)
-    //   .selectAll('path')
-    //   .attr('stroke-width', 0.2)
-    // }
+
     select(this.mapRef)
       .transition()
       .duration(750)
-      .call(this.zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+      .call(this.zoom.transform, zoomIdentity.translate(translate[0], translate[1]).scale(scale));
   }
   /**
    * d3 zoomEvent
@@ -660,7 +637,7 @@ export default class Map extends Component {
   zoomEvent = () => {
     select(this.mapRef)
       .selectAll('g.countyContainer, g.townContainer, g.villageContainer')
-      .attr('transform', d3.event.transform);
+      .attr('transform', event.transform);
   }
   /**
    * Zoom Out 至初始視圖
@@ -671,7 +648,7 @@ export default class Map extends Component {
     select(this.mapRef)
       .transition()
       .duration(750)
-      .call(this.zoom.transform, d3.zoomIdentity);
+      .call(this.zoom.transform, zoomIdentity);
     this.selectedCounty = {
       selection: [],
       element: null
@@ -696,10 +673,10 @@ export default class Map extends Component {
    * 滾輪 method
    */
   wheelEvent = () => {
-    if (d3.event === null) {
+    if (event === null) {
       return;
     }
-    const direction = d3.event.deltaY >= 0 ? 'down' : 'up';
+    const direction = event.deltaY >= 0 ? 'down' : 'up';
 
     if (direction === 'down') {
       this.zoom_out()
@@ -728,64 +705,59 @@ export default class Map extends Component {
         break;
     }
     const targetData = county_data.filter(vd => vd.county_code === code)[0];
-    setSelectedInfo({
-      name: targetData.county_name,
-      code: targetData.county_code,
-      data: targetData.county_data,
-      description: targetData.county_description
-    });
+    setSelectedInfo('county', targetData.county_code);
     this.zoomInSelectedCounty(targetCounty[0]);
   }
   /**
    * 取得 縣市 資料
    */
-  get_county_data = (code) => {
-    const { county_data } = this.state;
-    const targetCounty = county_data.filter(c => c.county_code === code);
-    return targetCounty[0].county_data
-  }
+  // get_county_data = (code) => {
+  //   const { county_data } = this.state;
+  //   const targetCounty = county_data.filter(c => c.county_code === code);
+  //   return targetCounty[0].county_data
+  // }
   /**
    * 設定 縣市 資料
    */
-  set_county_data = (code, data) => {
-    const { county_data } = this.state;
-    county_data.forEach((c, i) => {
-      if (c.county_code === code) {
-        if (data === c.county_data) {
-          return;
-        }
+  // set_county_data = (code, data) => {
+  //   const { county_data } = this.state;
+  //   county_data.forEach((c, i) => {
+  //     if (c.county_code === code) {
+  //       if (data === c.county_data) {
+  //         return;
+  //       }
 
-        this.setState(({
-          county_data: update(county_data, { [i]: { county_data: { $set: data } } })
-        }))
-      }
-    })
-  }
+  //       this.setState(({
+  //         county_data: update(county_data, { [i]: { county_data: { $set: data } } })
+  //       }))
+  //     }
+  //   })
+  // }
   /**
    * 取得 縣市 描述
    */
-  get_county_description = (code) => {
-    const { county_data } = this.state;
-    const targetCounty = county_data.filter(c => c.county_code === code);
-    return targetCounty[0].county_description
-  }
+  // get_county_description = (code) => {
+  //   const { county_data } = this.state;
+  //   const targetCounty = county_data.filter(c => c.county_code === code);
+  //   return targetCounty[0].county_description
+  // }
   /**
    * 設定 縣市 描述
    */
-  set_county_description = (code, data) => {
-    const { county_data } = this.state;
-    county_data.forEach((c, i) => {
-      if (c.county_code === code) {
-        if (data === c.description) {
-          return;
-        }
+  // set_county_description = (code, data) => {
+  //   const { county_data } = this.state;
+  //   county_data.forEach((c, i) => {
+  //     if (c.county_code === code) {
+  //       if (data === c.description) {
+  //         return;
+  //       }
 
-        this.setState(({
-          county_data: update(county_data, { [i]: { county_description: { $set: data } } })
-        }))
-      }
-    })
-  }
+  //       this.setState(({
+  //         county_data: update(county_data, { [i]: { county_description: { $set: data } } })
+  //       }))
+  //     }
+  //   })
+  // }
   /**
    * zoom in 至指定 鄉鎮區
    */
@@ -807,73 +779,68 @@ export default class Map extends Component {
         break;
     }
     const targetData = township_data.filter(vd => vd.township_code === code)[0];
-    setSelectedInfo({
-      name: targetData.township_name,
-      code: targetData.township_code,
-      data: targetData.township_data,
-      description: targetData.township_description
-    });
+    setSelectedInfo('township', targetData.township_code);
     this.zoomInSelectedCounty(targetCounty[0], false);
     this.zoomInSelectedTown(targetTown[0]);
   }
   /**
    * 取得 鄉鎮區 資料
    */
-  get_township_data = (code) => {
-    const { township_data } = this.state
-    const targetTown = township_data.filter(t => {
-      const { township_code } = t;
-      return township_code === code;
-    });
-    return targetTown[0].township_data;
-  }
+  // get_township_data = (code) => {
+  //   const { township_data } = this.state
+  //   const targetTown = township_data.filter(t => {
+  //     const { township_code } = t;
+  //     return township_code === code;
+  //   });
+  //   return targetTown[0].township_data;
+  // }
   /**
    * 設定 鄉鎮區 資料
    */
-  set_township_data = (code, data) => {
-    const { township_data } = this.state
-    township_data.forEach((t, i) => {
-      const { township_code } = t;
-      if (township_code === code) {
-        if (data === t.township_data) {
-          return;
-        }
+  // set_township_data = (code, data) => {
+  //   const { township_data } = this.state
+  //   township_data.forEach((t, i) => {
+  //     const { township_code } = t;
+  //     if (township_code === code) {
+  //       if (data === t.township_data) {
+  //         return;
+  //       }
 
-        this.setState(({
-          township_data: update(township_data, { [i]: { township_data: { $set: data } } })
-        }))
-      }
-    })
-  }
+  //       this.setState(({
+  //         township_data: update(township_data, { [i]: { township_data: { $set: data } } })
+  //       }))
+  //     }
+  //   })
+  // }
   /**
    * 取得 鄉鎮區 描述
    */
-  get_township_description = (code) => {
-    const { township_data } = this.state
-    const targetTown = township_data.filter(t => {
-      const { township_code } = t;
-      return township_code === code;
-    });
-    return targetTown[0].township_description;
-  }
+  // get_township_description = (code) => {
+  //   const { township_data } = this.state
+  //   const targetTown = township_data.filter(t => {
+  //     const { township_code } = t;
+  //     return township_code === code;
+  //   });
+  //   return targetTown[0].township_description;
+  // }
   /**
    * 設定 鄉鎮區 描述
    */
-  set_township_description = (code, data) => {
-    const { township_data } = this.state
-    township_data.forEach((t, i) => {
-      const { township_code } = t;
-      if (township_code === code) {
-        if (data === t.township_description) {
-          return;
-        }
+  // set_township_description = (code, data) => {
+  //   const { township_data } = this.state
+  //   township_data.forEach((t, i) => {
+  //     const { township_code } = t;
+  //     if (township_code === code) {
+  //       if (data === t.township_description) {
+  //         return;
+  //       }
 
-        this.setState(({
-          township_data: update(township_data, { [i]: { township_description: { $set: data } } })
-        }))
-      }
-    })
-  }
+  //       this.setState(({
+  //         township_data: update(township_data, { [i]: { township_description: { $set: data } } })
+  //       }))
+  //     }
+  //   })
+  // }
   /**
    * zoom in 至指定 村里
    */
@@ -898,12 +865,7 @@ export default class Map extends Component {
         break;
     }
     const targetData = village_data.filter(vd => vd.village_code === code)[0];
-    setSelectedInfo({
-      name: targetData.village_name,
-      code: targetData.village_code,
-      data: targetData.village_data,
-      description: targetData.village_description
-    })
+    setSelectedInfo('village', targetData.village_code)
     this.zoomInSelectedCounty(targetCounty[0], false);
     this.zoomInSelectedTown(targetTown[0]);
     this.zoomInSelectedVillage(targetVillage[0])
@@ -911,69 +873,69 @@ export default class Map extends Component {
   /**
    * 取得 村里 資料
    */
-  get_village_data = (code) => {
-    const { village_data } = this.state;
-    const targetVillage = village_data.filter(v => {
-      const { village_code } = v;
-      return village_code === code;
-    });
-    return targetVillage[0].village_data;
-  }
+  // get_village_data = (code) => {
+  //   const { village_data } = this.state;
+  //   const targetVillage = village_data.filter(v => {
+  //     const { village_code } = v;
+  //     return village_code === code;
+  //   });
+  //   return targetVillage[0].village_data;
+  // }
   /**
    * 設定 村里 資料
    */
-  set_village_data = (code, data) => {
-    const { village_data } = this.state;
-    village_data.forEach((v, i) => {
-      const { village_code } = v;
-      if (village_code === code) {
-        if (data === v.village_data) {
-          return;
-        }
-        this.setState(({
-          village_data: update(village_data, { [i]: { village_data: { $set: data } } })
-        }))
-      }
-    });
-  }
+  // set_village_data = (code, data) => {
+  //   const { village_data } = this.state;
+  //   village_data.forEach((v, i) => {
+  //     const { village_code } = v;
+  //     if (village_code === code) {
+  //       if (data === v.village_data) {
+  //         return;
+  //       }
+  //       this.setState(({
+  //         village_data: update(village_data, { [i]: { village_data: { $set: data } } })
+  //       }))
+  //     }
+  //   });
+  // }
   /**
    * 取得 村里 描述
    */
-  get_village_description = (code) => {
-    const { village_data } = this.state;
-    const targetVillage = village_data.filter(v => {
-      const { village_code } = v;
-      return village_code === code;
-    });
-    return targetVillage[0].village_description;
-  }
+  // get_village_description = (code) => {
+  //   const { village_data } = this.state;
+  //   const targetVillage = village_data.filter(v => {
+  //     const { village_code } = v;
+  //     return village_code === code;
+  //   });
+  //   return targetVillage[0].village_description;
+  // }
   /**
    * 設定 村里 描述
    */
-  set_village_description = (code, data) => {
-    const { village_data } = this.state;
-    village_data.forEach((v, i) => {
-      const { village_code } = v;
-      if (village_code === code) {
-        if (data === v.village_description) {
-          return;
-        }
-        this.setState(({
-          village_data: update(village_data, { [i]: { village_description: { $set: data } } })
-        }))
-      }
-    });
-  }
+  // set_village_description = (code, data) => {
+  //   const { village_data } = this.state;
+  //   village_data.forEach((v, i) => {
+  //     const { village_code } = v;
+  //     if (village_code === code) {
+  //       if (data === v.village_description) {
+  //         return;
+  //       }
+  //       this.setState(({
+  //         village_data: update(village_data, { [i]: { village_description: { $set: data } } })
+  //       }))
+  //     }
+  //   });
+  // }
   /**
    * 取得 所屬範圍的 顏色
    */
-  getDataRangeColor = (value) => {
-    const color = RangeColor.filter((rc) => value >= rc.value_min && value <= rc.value_max)[0].color
-    return color;
-  }
+  // getDataRangeColor = (value) => {
+  //   const color = RangeColor.filter((rc) => value >= rc.value_min && value <= rc.value_max)[0].color
+  //   return color;
+  // }
   render() {
     const { setInfo, country, setSelectedInfo } = this.props;
-    const { height, topoCounty, topoTownship, topoVillage, county_data, township_data, village_data, loading } = this.state;
+    const { height, topoCounty, topoTownship, topoVillage, loading } = this.state;
 
     if (loading) {
       return (
@@ -987,34 +949,28 @@ export default class Map extends Component {
         <County
           country={country}
           topoData={topoCounty}
-          data={county_data}
           path={this.path}
           setInfo={setInfo}
           clearSelectedCounty={this.clearSelectedCounty}
           zoomInSelectedCounty={this.zoomInSelectedCounty}
-          getColor={this.getDataRangeColor}
           setSelectedInfo={setSelectedInfo}
         />
         <Township
           country={country}
           topoData={topoTownship}
-          data={township_data}
           path={this.path}
           setInfo={setInfo}
           clearSelectedTown={this.clearSelectedTown}
           zoomInSelectedTown={this.zoomInSelectedTown}
-          getColor={this.getDataRangeColor}
           setSelectedInfo={setSelectedInfo}
         />
         <Village
           country={country}
           topoData={topoVillage}
-          data={village_data}
           path={this.path}
           setInfo={setInfo}
           clearSelectedVillage={this.clearSelectedVillage}
           zoomInSelectedVillage={this.zoomInSelectedVillage}
-          getColor={this.getDataRangeColor}
           setSelectedInfo={setSelectedInfo}
         />
       </svg>

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import Map from './Map';
 import { InfoModal } from './InfoModal';
+import { MapManager } from './MapManager';
 
 export default class App extends Component {
   state = {
@@ -12,12 +13,12 @@ export default class App extends Component {
     selectedCounty: '',
     selectedTown: '',
     selectedVillage: '',
-    country: 'tw',
+    selectedCountry: 'tw',
     selectedInfo: {}
   }
-  setInfo = (info) => {
+  setInfo = (type, code) => {
     this.setState({
-      info
+      info: MapManager.getData(type, code)
     })
   }
   setDatas = ({ counties, towns, villages }) => {
@@ -44,6 +45,11 @@ export default class App extends Component {
       selectedCounty: JSON.stringify(selectedCounty),
       selectedTown: JSON.stringify(selectedTown),
       selectedVillage: JSON.stringify(selectedVillage),
+    })
+  }
+  changeCountry = () => {
+    this.setState({
+      selectedCountry: this.countrySelect.value
     })
   }
   onCountySelect = (e) => {
@@ -82,7 +88,7 @@ export default class App extends Component {
     const { selectedCounty } = this.state;
     if (selectedCounty !== '') {
       const { code } = JSON.parse(selectedCounty);
-      const data = this.map.get_county_data(code);
+      const { data } = MapManager.getData('county', code)
       alert(data);
     }
   }
@@ -90,21 +96,21 @@ export default class App extends Component {
     const { selectedCounty } = this.state;
     const { code } = JSON.parse(selectedCounty);
     const data = this.countyData.value;
-    this.map.set_county_data(code, data)
+    MapManager.set_county_data(code, data);
   }
   getCountyDescription = () => {
     const { selectedCounty } = this.state;
     if (selectedCounty !== '') {
       const { code } = JSON.parse(selectedCounty);
-      const desciption = this.map.get_county_description(code)
-      alert(desciption);
+      const { description } = MapManager.getData('county', code)
+      alert(description);
     }
   }
   setCountyDescription = () => {
     const { selectedCounty } = this.state;
     const { code } = JSON.parse(selectedCounty);
     const data = this.countyDescription.value;
-    this.map.set_county_description(code, data)
+    MapManager.set_county_description(code, data);
   }
   toTown = () => {
     const { selectedTown } = this.state;
@@ -117,7 +123,7 @@ export default class App extends Component {
     const { selectedTown } = this.state;
     if (selectedTown !== '') {
       const { code } = JSON.parse(selectedTown);
-      const data = this.map.get_township_data(code);
+      const { data } = MapManager.getData('township', code);
       alert(data);
     }
   }
@@ -125,21 +131,23 @@ export default class App extends Component {
     const { selectedTown } = this.state;
     const { code } = JSON.parse(selectedTown);
     const data = this.townshipData.value;
-    this.map.set_township_data(code, data)
+    // this.map.set_township_data(code, data)
+    MapManager.set_township_data(code, data)
   }
   getTownshipDescription = () => {
     const { selectedTown } = this.state;
     if (selectedTown !== '') {
       const { code } = JSON.parse(selectedTown);
-      const desciption = this.map.get_township_description(code)
-      alert(desciption);
+      // const desciption = this.map.get_township_description(code)
+      const { description } = MapManager.getData('township', code);
+      alert(description);
     }
   }
   setTownshipDescription = () => {
     const { selectedTown } = this.state;
     const { code } = JSON.parse(selectedTown);
     const data = this.townshipDescription.value;
-    this.map.set_township_description(code, data)
+    MapManager.set_township_description(code, data)
   }
   toVillage = () => {
     const { selectedVillage } = this.state;
@@ -152,7 +160,7 @@ export default class App extends Component {
     const { selectedVillage } = this.state;
     if (selectedVillage !== '') {
       const { code } = JSON.parse(selectedVillage);
-      const data = this.map.get_village_data(code);
+      const { data } = MapManager.getData('village', code);
       alert(data);
     }
   }
@@ -160,21 +168,21 @@ export default class App extends Component {
     const { selectedVillage } = this.state;
     const { code } = JSON.parse(selectedVillage);
     const data = this.villageData.value;
-    this.map.set_village_data(code, data)
+    MapManager.set_village_data(code, data)
   }
   getVillageDescription = () => {
     const { selectedVillage } = this.state;
     if (selectedVillage !== '') {
       const { code } = JSON.parse(selectedVillage);
-      const desciption = this.map.get_village_description(code)
-      alert(desciption);
+      const { description } = MapManager.getData('village', code);
+      alert(description);
     }
   }
   setVillageDescription = () => {
     const { selectedVillage } = this.state;
     const { code } = JSON.parse(selectedVillage);
     const data = this.villageDescription.value;
-    this.map.set_village_description(code, data)
+    MapManager.set_village_description(code, data)
   }
   backToTopLevel = () => {
     this.map.zoom_fit();
@@ -182,10 +190,20 @@ export default class App extends Component {
   exportToPNG = () => {
     this.map.exportToPNG();
   }
-  setSelectedInfo = (selectedInfo) => {
+  setSelectedInfo = (type, code) => {
     this.setState({
-      selectedInfo
+      selectedInfo: {
+        ...MapManager.getData(type, code),
+        code
+      }
     })
+  }
+  setColor = () => {
+    if (this.deepestColor.value !== '' || this.lightestColor.value !== '') {
+      MapManager.setColor(this.lightestColor.value, this.deepestColor.value)
+    } else {
+      alert('最淺及最深顏色都需要填寫');
+    }
   }
   render() {
     const {
@@ -196,15 +214,15 @@ export default class App extends Component {
       selectedCounty,
       selectedTown,
       selectedVillage,
-      country,
-      selectedInfo
+      selectedInfo,
+      selectedCountry
     } = this.state;
     return (
       <div className="App">
         <div style={{ flex: 2 }}>
           <Map
             ref={ref => this.map = ref}
-            country={country}
+            country={selectedCountry}
             setInfo={this.setInfo}
             setDatas={this.setDatas}
             setSelectedInfo={this.setSelectedInfo}
@@ -212,6 +230,18 @@ export default class App extends Component {
         </div>
         <div style={{ flex: 1 }}>
           <div>
+            <div className="controller">
+              <select
+                name="country"
+                id="selectCountry"
+                ref={ref => this.countrySelect = ref}
+                defaultValue={selectedCountry}
+              >
+                <option value="tw">台灣</option>
+                <option value="kr">韓國</option>
+              </select>
+              <input type="button" onClick={this.changeCountry} value="確認" />
+            </div>
             <div className='controller'>
               <div>
                 <select
@@ -256,6 +286,7 @@ export default class App extends Component {
                           <option key={code} value={JSON.stringify(t)}>{name}</option>
                         )
                       }
+                      return null;
                     })
                   }
                 </select>
@@ -290,6 +321,7 @@ export default class App extends Component {
                           <option key={code} value={JSON.stringify(v)}>{name}</option>
                         )
                       }
+                      return null;
                     })
                   }
                 </select>
@@ -304,6 +336,13 @@ export default class App extends Component {
               <div>
                 <input type="text" ref={ref => this.villageDescription = ref} />
                 <input type="button" onClick={this.setVillageDescription} value="設定描述" />
+              </div>
+            </div>
+            <div className="controller">
+              <div>
+                <input type="text" ref={ref => this.lightestColor = ref} placeholder='最淺顏色' />
+                <input type="text" ref={ref => this.deepestColor = ref} placeholder='最深顏色' />
+                <input type="button" onClick={this.setColor} value="設定顏色" />
               </div>
             </div>
             <div>

@@ -1,22 +1,36 @@
-import React, { Component, PureComponent } from 'react';
-import isEqual from 'react-fast-compare';
+import React, { PureComponent } from 'react';
+import { MapManager } from './MapManager';
+
 class Path extends PureComponent {
+  constructor(props) {
+    super(props);
+    const { data } = MapManager.getData('village', props.code);
+    const color = MapManager.getColor(data);
+    this.state = {
+      color
+    }
+  }
+  componentDidMount() {
+    const { code } = this.props;
+    MapManager.onSubscribe(code, this.updateColor)
+  }
+  updateColor = (color) => {
+    this.setState({
+      color
+    })
+  }
   render() {
     const {
       village,
       path,
       code,
-      name,
-      data,
-      description,
       setInfo,
       clearSelectedVillage,
       zoomInSelectedVillage,
       setSelectedInfo,
-      fill
     } = this.props;
     const { VILLNAME, TOWNNAME, COUNTYNAME } = village.properties;
-
+    const { color } = this.state;
     return (
       <g
         id={VILLNAME}
@@ -30,24 +44,15 @@ class Path extends PureComponent {
         }}
       >
         <path
-          fill={fill}
+          fill={color}
           stroke='white'
           strokeWidth={0.05}
           d={path(village)}
           onMouseOver={() => {
-            setInfo({
-              name,
-              data,
-              description
-            });
+            setInfo('village', code);
           }}
           onClick={() => {
-            setSelectedInfo({
-              name,
-              code,
-              data,
-              description
-            });
+            setSelectedInfo('village', code);
             clearSelectedVillage();
             zoomInSelectedVillage(village);
           }}
@@ -57,14 +62,7 @@ class Path extends PureComponent {
   }
 }
 
-class Village extends Component {
-  shouldComponentUpdate(nextProps) {
-    const { data } = this.props;
-    if (!isEqual(data, nextProps.data)) {
-      return true
-    }
-    return false;
-  }
+class Village extends PureComponent {
   getProperties = (properties) => {
     const { country } = this.props;
     switch (country) {
@@ -86,12 +84,10 @@ class Village extends Component {
   render() {
     const {
       topoData,
-      data,
       path,
       setInfo,
       clearSelectedVillage,
       zoomInSelectedVillage,
-      getColor,
       setSelectedInfo
     } = this.props;
 
@@ -99,23 +95,14 @@ class Village extends Component {
       <g className='villageContainer'>
         {
           topoData.features.map((village, i) => {
-            const { key, name } = this.getProperties(village.properties);
-            /* const targetData = data.filter(d => d.county_name === COUNTYNAME && d.township_name === TOWNNAME && d.village_name === VILLNAME)[0]; */
-            let targetData = data[i];
-            /* if (targetData.county_name !== COUNTYNAME && targetData.township_name !== TOWNNAME && targetData.village_name !== name) {
-              console.log('index Wrong!');
-              targetData = data.filter(d => d.county_name === COUNTYNAME && d.township_name === TOWNNAME && d.village_name === name)[0];
-            } */
+            const { key } = this.getProperties(village.properties);
+
             return (
               <Path
                 key={key}
                 code={key}
                 village={village}
-                name={name}
                 path={path}
-                fill={getColor(targetData.village_data)}
-                data={targetData.village_data}
-                description={targetData.village_description}
                 setInfo={setInfo}
                 clearSelectedVillage={clearSelectedVillage}
                 zoomInSelectedVillage={zoomInSelectedVillage}

@@ -1,22 +1,37 @@
-import React, { Component, PureComponent } from 'react';
-import isEqual from 'react-fast-compare';
+import React, { PureComponent } from 'react';
+import { MapManager } from './MapManager';
 
 class Path extends PureComponent {
+  constructor(props) {
+    super(props);
+    const { data } = MapManager.getData('township', props.code);
+    const color = MapManager.getColor(data);
+    this.state = {
+      color
+    }
+  }
+  componentDidMount() {
+    const { code } = this.props;
+    MapManager.onSubscribe(code, this.updateColor)
+  }
+  updateColor = (color) => {
+    this.setState({
+      color
+    })
+  }
   render() {
     const {
       town,
       path,
-      name,
       code,
-      data,
-      description,
       setInfo,
       clearSelectedTown,
       zoomInSelectedTown,
-      fill,
       setSelectedInfo
     } = this.props;
     const { TOWNNAME, COUNTYNAME } = town.properties;
+
+    const { color } = this.state;
 
     return (
       <g
@@ -30,24 +45,15 @@ class Path extends PureComponent {
         }}
       >
         <path
-          fill={fill}
+          fill={color}
           stroke='white'
           strokeWidth={0.05}
           d={path(town)}
           onMouseOver={() => {
-            setInfo({
-              name,
-              data,
-              description
-            });
+            setInfo('township', code);
           }}
           onClick={() => {
-            setSelectedInfo({
-              name,
-              code,
-              data,
-              description
-            })
+            setSelectedInfo('township', code)
             clearSelectedTown();
             zoomInSelectedTown(town)
           }}
@@ -57,14 +63,7 @@ class Path extends PureComponent {
   }
 }
 
-class Township extends Component {
-  shouldComponentUpdate(nextProps) {
-    const { data } = this.props;
-    if (!isEqual(data, nextProps.data)) {
-      return true
-    }
-    return false;
-  }
+class Township extends PureComponent {
   getProperties = (properties) => {
     const { country } = this.props;
     switch (country) {
@@ -86,36 +85,24 @@ class Township extends Component {
   render() {
     const {
       topoData,
-      data,
       path,
       setInfo,
       clearSelectedTown,
       zoomInSelectedTown,
-      getColor,
       setSelectedInfo
     } = this.props;
     return (
       <g className='townContainer'>
         {
           topoData.features.map((town, i) => {
-            const { key, name } = this.getProperties(town.properties);
-            /* const targetData = data.filter(d => d.county_name === COUNTYNAME && d.township_name === TOWNNAME)[0]; */
-            let targetData = data[i];
-            /* if (targetData.county_name !== COUNTYNAME && targetData.township_name !== TOWNNAME) {
-              console.log('index Wrong!');
-              targetData = data.filter(d => d.county_name === COUNTYNAME && d.township_name === TOWNNAME)[0];
-            } */
+            const { key } = this.getProperties(town.properties);
             return (
 
               <Path
                 key={key}
                 code={key}
                 town={town}
-                name={name}
                 path={path}
-                fill={getColor(targetData.township_data)}
-                data={targetData.township_data}
-                description={targetData.township_description}
                 setInfo={setInfo}
                 clearSelectedTown={clearSelectedTown}
                 zoomInSelectedTown={zoomInSelectedTown}

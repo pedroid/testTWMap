@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "d3": "^5.9.2",
     "d3-geo": "^1.11.3",
+    "d3-scale": "^3.0.0",
     "d3-selection": "^1.4.0",
+    "d3-zoom": "^1.7.3",
     "gh-pages": "^2.0.1",
     "immutability-helper": "^3.0.0",
     "lodash.throttle": "^4.1.1",
