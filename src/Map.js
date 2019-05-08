@@ -241,9 +241,9 @@ export default class Map extends Component {
               const topoTownship = topojson.feature(krMunicipality, krMunicipality.objects.skorea_municipalities_2018_geo);
               const topoVillage = topojson.feature(krSubMunicipality, krSubMunicipality.objects.skorea_submunicipalities_2018_geo);
 
-              const { counties, county_data, county_template } = this.demoCountyData(country, topoCounty);
-              const { towns, township_data, township_template } = this.demoTownshipData(country, topoTownship);
-              const { villages, village_data, village_template } = this.demoVillageData(country, topoVillage);
+              const { counties, county_template } = this.demoCountyData(country, topoCounty);
+              const { towns, township_template } = this.demoTownshipData(country, topoTownship);
+              const { villages, village_template } = this.demoVillageData(country, topoVillage);
               // this.writeTemplateToFile('county_data', county_template)
               // this.writeTemplateToFile('township_data', township_template)
               // this.writeTemplateToFile('village_data', village_template)
@@ -263,10 +263,7 @@ export default class Map extends Component {
                 loading: false,
                 topoCounty: topoCounty,
                 topoTownship: topoTownship,
-                topoVillage: topoVillage,
-                county_data,
-                village_data,
-                township_data
+                topoVillage: topoVillage
               }, () => {
                 select(this.mapRef)
                   .on('wheel', throttle(this.wheelEvent, 400));
@@ -285,9 +282,9 @@ export default class Map extends Component {
               const topoCounty = topojson.feature(twCounty, twCounty.objects.county);
               const topoVillage = topojson.feature(twVillage, twVillage.objects.village);
               const topoTownship = topojson.feature(twTownship, twTownship.objects.town);
-              const { counties, county_data, county_template } = this.demoCountyData(country, topoCounty);
-              const { towns, township_data, township_template } = this.demoTownshipData(country, topoTownship);
-              const { villages, village_data, village_template } = this.demoVillageData(country, topoVillage);
+              const { counties, county_template } = this.demoCountyData(country, topoCounty);
+              const { towns, township_template } = this.demoTownshipData(country, topoTownship);
+              const { villages, village_template } = this.demoVillageData(country, topoVillage);
               // this.writeTemplateToFile('county_data', county_template)
               // this.writeTemplateToFile('township_data', township_template)
               // this.writeTemplateToFile('village_data', village_template)
@@ -305,10 +302,7 @@ export default class Map extends Component {
                 loading: false,
                 topoCounty: topoCounty,
                 topoTownship: topoTownship,
-                topoVillage: topoVillage,
-                county_data,
-                village_data,
-                township_data
+                topoVillage: topoVillage
               }, () => {
                 select(this.mapRef)
                   .on('wheel', throttle(this.wheelEvent, 400));
@@ -639,7 +633,7 @@ export default class Map extends Component {
    * zoom in 至指定 縣市
    */
   goto_county = (code) => {
-    const { topoCounty, county_data } = this.state;
+    const { topoCounty } = this.state;
     const { country, setSelectedInfo } = this.props;
     let targetCounty = []
     switch (country) {
@@ -651,15 +645,15 @@ export default class Map extends Component {
         targetCounty = topoCounty.features.filter(c => c.properties.COUNTYCODE === code);
         break;
     }
-    const targetData = county_data.filter(vd => vd.county_code === code)[0];
-    setSelectedInfo('county', targetData.county_code);
+
+    setSelectedInfo('county', code);
     this.zoomInSelectedCounty(targetCounty[0]);
   }
   /**
    * zoom in 至指定 鄉鎮區
    */
   goto_township = (code) => {
-    const { topoCounty, topoTownship, township_data } = this.state;
+    const { topoCounty, topoTownship } = this.state;
     const { country, setSelectedInfo } = this.props;
     let targetCounty = [];
     let targetTown = [];
@@ -675,8 +669,8 @@ export default class Map extends Component {
         targetTown = topoTownship.features.filter(t => t.properties.TOWNCODE === code);
         break;
     }
-    const targetData = township_data.filter(vd => vd.township_code === code)[0];
-    setSelectedInfo('township', targetData.township_code);
+
+    setSelectedInfo('township', code);
     this.zoomInSelectedCounty(targetCounty[0], false);
     this.zoomInSelectedTown(targetTown[0]);
   }
@@ -684,7 +678,7 @@ export default class Map extends Component {
    * zoom in 至指定 村里
    */
   goto_village = (code) => {
-    const { topoCounty, topoTownship, topoVillage, village_data } = this.state;
+    const { topoCounty, topoTownship, topoVillage } = this.state;
     const { country, setSelectedInfo } = this.props;
     let targetCounty = [];
     let targetTown = [];
@@ -703,8 +697,8 @@ export default class Map extends Component {
         targetVillage = topoVillage.features.filter(v => v.properties.VILLCODE === code);
         break;
     }
-    const targetData = village_data.filter(vd => vd.village_code === code)[0];
-    setSelectedInfo('village', targetData.village_code)
+
+    setSelectedInfo('village', code)
     this.zoomInSelectedCounty(targetCounty[0], false);
     this.zoomInSelectedTown(targetTown[0]);
     this.zoomInSelectedVillage(targetVillage[0])
@@ -753,3 +747,5 @@ export default class Map extends Component {
     );
   }
 }
+
+export { MapManager };
