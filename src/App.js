@@ -131,14 +131,13 @@ export default class App extends Component {
     const { selectedTown } = this.state;
     const { code } = JSON.parse(selectedTown);
     const data = this.townshipData.value;
-    // this.map.set_township_data(code, data)
+
     MapManager.set_township_data(code, data)
   }
   getTownshipDescription = () => {
     const { selectedTown } = this.state;
     if (selectedTown !== '') {
       const { code } = JSON.parse(selectedTown);
-      // const desciption = this.map.get_township_description(code)
       const { description } = MapManager.getData('township', code);
       alert(description);
     }
