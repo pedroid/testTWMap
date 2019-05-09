@@ -1,10 +1,10 @@
 import React, { PureComponent } from 'react';
-import { MapManager } from './MapManager';
+import { MapManager } from './index';
 
 class Path extends PureComponent {
   constructor(props) {
     super(props);
-    const { data } = MapManager.getData('township', props.code);
+    const { data } = MapManager.getData('county', props.code);
     const color = MapManager.getColor(data);
     this.state = {
       color
@@ -21,49 +21,42 @@ class Path extends PureComponent {
   }
   render() {
     const {
-      town,
+      county,
       path,
       code,
       setInfo,
-      clearSelectedTown,
-      zoomInSelectedTown,
+      clearSelectedCounty,
+      zoomInSelectedCounty,
       setSelectedInfo
     } = this.props;
-    const { TOWNNAME, COUNTYNAME } = town.properties;
 
-    const { color } = this.state;
+    const { name, color } = this.state;
 
     return (
       <g
-        id={TOWNNAME}
+        id={name}
         data-code={code}
-        data-county={COUNTYNAME}
-        className='town'
-        style={{
-          opacity: 0,
-          display: 'none'
-        }}
+        className='county'
       >
         <path
           fill={color}
           stroke='white'
-          strokeWidth={0.05}
-          d={path(town)}
+          strokeWidth={0.2}
+          d={path(county)}
           onMouseOver={() => {
-            setInfo('township', code);
+            setInfo('county', code);
           }}
           onClick={() => {
-            setSelectedInfo('township', code)
-            clearSelectedTown();
-            zoomInSelectedTown(town)
+            setSelectedInfo('county', code);
+            clearSelectedCounty();
+            zoomInSelectedCounty(county);
           }}
         />
       </g>
     )
   }
 }
-
-class Township extends PureComponent {
+class County extends PureComponent {
   getProperties = (properties) => {
     const { country } = this.props;
     switch (country) {
@@ -75,10 +68,10 @@ class Township extends PureComponent {
         }
       case 'tw':
       default:
-        const { TOWNNAME, TOWNCODE } = properties;
+        const { COUNTYNAME, COUNTYCODE } = properties;
         return {
-          key: TOWNCODE,
-          name: TOWNNAME,
+          key: COUNTYCODE,
+          name: COUNTYNAME,
         }
     }
   }
@@ -87,25 +80,25 @@ class Township extends PureComponent {
       topoData,
       path,
       setInfo,
-      clearSelectedTown,
-      zoomInSelectedTown,
+      clearSelectedCounty,
+      zoomInSelectedCounty,
       setSelectedInfo
     } = this.props;
-    return (
-      <g className='townContainer'>
-        {
-          topoData.features.map((town, i) => {
-            const { key } = this.getProperties(town.properties);
-            return (
 
+    return (
+      <g className='countyContainer'>
+        {
+          topoData.features.map((county, i) => {
+            const { key } = this.getProperties(county.properties)
+            return (
               <Path
                 key={key}
                 code={key}
-                town={town}
+                county={county}
                 path={path}
                 setInfo={setInfo}
-                clearSelectedTown={clearSelectedTown}
-                zoomInSelectedTown={zoomInSelectedTown}
+                clearSelectedCounty={clearSelectedCounty}
+                zoomInSelectedCounty={zoomInSelectedCounty}
                 setSelectedInfo={setSelectedInfo}
               />
             )
@@ -116,4 +109,4 @@ class Township extends PureComponent {
   }
 }
 
-export default Township;
+export default County;

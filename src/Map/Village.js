@@ -1,10 +1,10 @@
 import React, { PureComponent } from 'react';
-import { MapManager } from './MapManager'
+import { MapManager } from './index';
 
 class Path extends PureComponent {
   constructor(props) {
     super(props);
-    const { data } = MapManager.getData('county', props.code);
+    const { data } = MapManager.getData('village', props.code);
     const color = MapManager.getColor(data);
     this.state = {
       color
@@ -21,42 +21,48 @@ class Path extends PureComponent {
   }
   render() {
     const {
-      county,
+      village,
       path,
       code,
       setInfo,
-      clearSelectedCounty,
-      zoomInSelectedCounty,
-      setSelectedInfo
+      clearSelectedVillage,
+      zoomInSelectedVillage,
+      setSelectedInfo,
     } = this.props;
-
-    const { name, color } = this.state;
-
+    const { VILLNAME, TOWNNAME, COUNTYNAME } = village.properties;
+    const { color } = this.state;
     return (
       <g
-        id={name}
+        id={VILLNAME}
         data-code={code}
-        className='county'
+        data-town={TOWNNAME}
+        data-county={COUNTYNAME}
+        className='village'
+        style={{
+          opacity: 0,
+          display: 'none',
+        }}
       >
         <path
           fill={color}
           stroke='white'
-          strokeWidth={0.2}
-          d={path(county)}
+          strokeWidth={0.05}
+          d={path(village)}
           onMouseOver={() => {
-            setInfo('county', code);
+            setInfo('village', code);
           }}
           onClick={() => {
-            setSelectedInfo('county', code)
-            clearSelectedCounty();
-            zoomInSelectedCounty(county);
+            setSelectedInfo('village', code);
+            clearSelectedVillage();
+            zoomInSelectedVillage(village);
           }}
         />
       </g>
     )
   }
 }
-class County extends PureComponent {
+
+class Village extends PureComponent {
   getProperties = (properties) => {
     const { country } = this.props;
     switch (country) {
@@ -68,10 +74,10 @@ class County extends PureComponent {
         }
       case 'tw':
       default:
-        const { COUNTYNAME, COUNTYCODE } = properties;
+        const { VILLNAME, VILLCODE } = properties;
         return {
-          key: COUNTYCODE,
-          name: COUNTYNAME,
+          key: VILLCODE,
+          name: VILLNAME,
         }
     }
   }
@@ -80,26 +86,26 @@ class County extends PureComponent {
       topoData,
       path,
       setInfo,
-      clearSelectedCounty,
-      zoomInSelectedCounty,
+      clearSelectedVillage,
+      zoomInSelectedVillage,
       setSelectedInfo
     } = this.props;
 
     return (
-      <g className='countyContainer'>
+      <g className='villageContainer'>
         {
-          topoData.features.map((county, i) => {
-            const { key } = this.getProperties(county.properties)
+          topoData.features.map((village, i) => {
+            const { key } = this.getProperties(village.properties);
 
             return (
               <Path
                 key={key}
                 code={key}
-                county={county}
+                village={village}
                 path={path}
                 setInfo={setInfo}
-                clearSelectedCounty={clearSelectedCounty}
-                zoomInSelectedCounty={zoomInSelectedCounty}
+                clearSelectedVillage={clearSelectedVillage}
+                zoomInSelectedVillage={zoomInSelectedVillage}
                 setSelectedInfo={setSelectedInfo}
               />
             )
@@ -110,4 +116,4 @@ class County extends PureComponent {
   }
 }
 
-export default County;
+export default Village;

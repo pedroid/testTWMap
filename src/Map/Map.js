@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import './App.css';
 import * as topojson from 'topojson';
 import { zoom, zoomIdentity } from 'd3-zoom';
 import { select, event } from 'd3-selection';
@@ -11,10 +10,14 @@ import County from './County';
 import Township from './Township';
 import Village from './Village';
 
-import { MapManager } from './MapManager'
+import { MapManager } from './index';
 
 
 export default class Map extends Component {
+  static defaultProps = {
+    country: 'tw'
+  }
+
   constructor(props) {
     super(props);
 
@@ -43,22 +46,41 @@ export default class Map extends Component {
       loading: true
     }
   }
-  demoCountyData = (country, topoCounty) => {
+  dealwithCountyData = (country, topoCounty, data = []) => {
     const counties = [];
     const county_template = [];
     switch (country) {
       case 'kr':
         topoCounty.features.forEach((c, i) => {
           const { name, code } = c.properties;
+          /**
+           * 此為 app.js 內 縣市 的select 資料
+           */
           counties.push({
             name,
             code
-          })
-          MapManager.setCountyData(code, {
-            name: name,
-            data: parseInt(Math.random() * 100, 10),
-            description: `我是 ${name} 的描述內容`
-          })
+          });
+          /**
+           * 未傳入data值 或是 data順序亂掉 導致code不對應
+           * 會進入 demo 模式(自動產生隨機資料)
+           */
+          if (data.length !== 0 && data[i].county_code === code) {
+            MapManager.setCountyData(code, {
+              name: data[i].county_name,
+              data: data[i].county_data,
+              description: data[i].description
+            })
+          } else {
+            MapManager.setCountyData(code, {
+              name: name,
+              data: parseInt(Math.random() * 100, 10),
+              description: `我是 ${name} 的描述內容`
+            })
+          }
+          /**
+           * 此為 預設資料模板
+           * 方便輸出為json
+           */
           county_template.push({
             county_name: name,
             county_code: code,
@@ -71,15 +93,34 @@ export default class Map extends Component {
       default:
         topoCounty.features.forEach((c, i) => {
           const { COUNTYNAME, COUNTYCODE } = c.properties;
+          /**
+           * 此為 app.js 內 縣市 的select 資料
+           */
           counties.push({
             name: COUNTYNAME,
             code: COUNTYCODE
           })
-          MapManager.setCountyData(COUNTYCODE, {
-            name: COUNTYNAME,
-            data: parseInt(Math.random() * 100, 10),
-            description: `我是 ${COUNTYNAME} 的描述內容`
-          })
+          /**
+           * 未傳入data值 或是 data順序亂掉 導致code不對應
+           * 會進入 demo 模式(自動產生隨機資料)
+           */
+          if (data.length !== 0 && data[i].county_code === COUNTYCODE) {
+            MapManager.setCountyData(COUNTYCODE, {
+              name: data[i].county_name,
+              data: data[i].county_data,
+              description: data[i].description
+            })
+          } else {
+            MapManager.setCountyData(COUNTYCODE, {
+              name: COUNTYNAME,
+              data: parseInt(Math.random() * 100, 10),
+              description: `我是 ${COUNTYNAME} 的描述內容`
+            })
+          }
+          /**
+           * 此為 預設資料模板
+           * 方便輸出為json
+           */
           county_template.push({
             county_name: COUNTYNAME,
             county_code: COUNTYCODE,
@@ -94,22 +135,41 @@ export default class Map extends Component {
       county_template
     }
   }
-  demoTownshipData = (country, topoTownship) => {
+  dealwithTownshipData = (country, topoTownship, data = []) => {
     const towns = [];
     const township_template = [];
     switch (country) {
       case 'kr':
         topoTownship.features.forEach((t, i) => {
           const { name, code } = t.properties;
+          /**
+           * 此為 app.js 內 鄉鎮區 的select 資料
+           */
           towns.push({
             name,
             code
           });
-          MapManager.setTownshipData(code, {
-            name: name,
-            data: parseInt(Math.random() * 100, 10),
-            description: `我是 ${name} 的描述內容`
-          })
+          /**
+           * 未傳入data值 或是 data順序亂掉 導致code不對應
+           * 會進入 demo 模式(自動產生隨機資料)
+           */
+          if (data.length !== 0 && data[i].township_code === code) {
+            MapManager.setTownshipData(code, {
+              name: data[i].township_name,
+              data: data[i].township_data,
+              description: data[i].township_description
+            })
+          } else {
+            MapManager.setTownshipData(code, {
+              name: name,
+              data: parseInt(Math.random() * 100, 10),
+              description: `我是 ${name} 的描述內容`
+            })
+          }
+          /**
+           * 此為 預設資料模板
+           * 方便輸出為json
+           */
           township_template.push({
             township_name: name,
             township_code: code,
@@ -122,15 +182,34 @@ export default class Map extends Component {
       default:
         topoTownship.features.forEach((t, i) => {
           const { TOWNNAME, COUNTYNAME, TOWNCODE } = t.properties;
+          /**
+           * 此為 app.js 內 鄉鎮區 的select 資料
+           */
           towns.push({
             name: TOWNNAME,
             code: TOWNCODE
           });
-          MapManager.setTownshipData(TOWNCODE, {
-            name: TOWNNAME,
-            data: parseInt(Math.random() * 100, 10),
-            description: `我是 ${COUNTYNAME}${TOWNNAME} 的描述內容`
-          })
+          /**
+           * 未傳入data值 或是 data順序亂掉 導致code不對應
+           * 會進入 demo 模式(自動產生隨機資料)
+           */
+          if (data.length !== 0 && data[i].township_code === TOWNCODE) {
+            MapManager.setTownshipData(TOWNCODE, {
+              name: data[i].township_name,
+              data: data[i].township_data,
+              description: data[i].township_description
+            })
+          } else {
+            MapManager.setTownshipData(TOWNCODE, {
+              name: TOWNNAME,
+              data: parseInt(Math.random() * 100, 10),
+              description: `我是 ${COUNTYNAME}${TOWNNAME} 的描述內容`
+            })
+          }
+          /**
+           * 此為 預設資料模板
+           * 方便輸出為json
+           */
           township_template.push({
             township_name: TOWNNAME,
             township_code: TOWNCODE,
@@ -145,7 +224,7 @@ export default class Map extends Component {
       township_template
     }
   }
-  demoVillageData = (country, topoVillage) => {
+  dealwithVillageData = (country, topoVillage, data = []) => {
     const villages = [];
     const village_template = [];
 
@@ -153,6 +232,9 @@ export default class Map extends Component {
       case 'kr':
         topoVillage.features.forEach((v, i) => {
           const { name, code } = v.properties;
+          /**
+           * 此為 app.js 內 村里 的select 資料
+           */
           villages.push({
             name,
             code
@@ -162,6 +244,27 @@ export default class Map extends Component {
             data: parseInt(Math.random() * 100, 10),
             description: `我是 ${name} 的描述內容`
           })
+          /**
+           * 未傳入data值 或是 data順序亂掉 導致code不對應
+           * 會進入 demo 模式(自動產生隨機資料)
+           */
+          if (data.length !== 0 && data[i].village_code === code) {
+            MapManager.setVillageData(code, {
+              name: data[i].village_name,
+              data: data[i].village_data,
+              description: data[i].village_description
+            })
+          } else {
+            MapManager.setVillageData(code, {
+              name: name,
+              data: parseInt(Math.random() * 100, 10),
+              description: `我是 ${name} 的描述內容`
+            })
+          }
+          /**
+           * 此為 預設資料模板
+           * 方便輸出為json
+           */
           village_template.push({
             village_name: name,
             village_code: code,
@@ -174,15 +277,34 @@ export default class Map extends Component {
       default:
         topoVillage.features.forEach((v, i) => {
           const { VILLNAME, TOWNNAME, COUNTYNAME, VILLCODE } = v.properties;
+          /**
+           * 此為 app.js 內 村里 的select 資料
+           */
           villages.push({
             name: VILLNAME,
             code: VILLCODE
           });
-          MapManager.setVillageData(VILLCODE, {
-            name: VILLNAME,
-            data: parseInt(Math.random() * 100, 10),
-            description: `我是 ${COUNTYNAME}${TOWNNAME}${VILLNAME} 的描述內容`
-          });
+          /**
+           * 未傳入data值 或是 data順序亂掉 導致code不對應
+           * 會進入 demo 模式(自動產生隨機資料)
+           */
+          if (data.length !== 0 && data[i].village_code === VILLCODE) {
+            MapManager.setVillageData(VILLCODE, {
+              name: data[i].village_name,
+              data: data[i].village_data,
+              description: data[i].village_description
+            })
+          } else {
+            MapManager.setVillageData(VILLCODE, {
+              name: VILLNAME,
+              data: parseInt(Math.random() * 100, 10),
+              description: `我是 ${COUNTYNAME}${TOWNNAME}${VILLNAME} 的描述內容`
+            })
+          }
+          /**
+           * 此為 預設資料模板
+           * 方便輸出為json
+           */
           village_template.push({
             village_name: VILLNAME,
             village_code: VILLCODE,
@@ -235,18 +357,25 @@ export default class Map extends Component {
       MapManager.init()
       switch (country) {
         case 'kr':
-          import('./assets/South Korea/MapSources')
+          import('../assets/South Korea/MapSources')
             .then(({ krProvince, krMunicipality, krSubMunicipality }) => {
               const topoCounty = topojson.feature(krProvince, krProvince.objects.skorea_provinces_2018_geo);
               const topoTownship = topojson.feature(krMunicipality, krMunicipality.objects.skorea_municipalities_2018_geo);
               const topoVillage = topojson.feature(krSubMunicipality, krSubMunicipality.objects.skorea_submunicipalities_2018_geo);
 
-              const { counties, county_template } = this.demoCountyData(country, topoCounty);
-              const { towns, township_template } = this.demoTownshipData(country, topoTownship);
-              const { villages, village_template } = this.demoVillageData(country, topoVillage);
+              const { counties, county_template } = this.dealwithCountyData(country, topoCounty);
+              const { towns, township_template } = this.dealwithTownshipData(country, topoTownship);
+              const { villages, village_template } = this.dealwithVillageData(country, topoVillage);
+
+              /**
+               * 此為 輸出 data模板的method
+               * 取消註解 重新整理頁面
+               * 會在一開始時 就跑出下載的視窗
+               */
               // this.writeTemplateToFile('county_data', county_template)
               // this.writeTemplateToFile('township_data', township_template)
               // this.writeTemplateToFile('village_data', village_template)
+
               setDatas({
                 counties: counties,
                 towns: towns,
@@ -257,7 +386,6 @@ export default class Map extends Component {
               const scale = 7000;
               const prj = geoMercator().center(center).translate([width / 2, height / 2]).scale(scale);
               this.path = geoPath().projection(prj);
-              // console.log('done');
 
               this.setState({
                 loading: false,
@@ -277,27 +405,42 @@ export default class Map extends Component {
           break;
         case 'tw':
         default:
-          import('./assets/Taiwan/MapSources')
-            .then(({ twVillage, twTownship, twCounty }) => {
+          import('../assets/Taiwan/MapSources')
+            .then(({
+              twVillage,
+              twTownship,
+              twCounty,
+              county_data,
+              township_data,
+              village_data
+            }) => {
               const topoCounty = topojson.feature(twCounty, twCounty.objects.county);
               const topoVillage = topojson.feature(twVillage, twVillage.objects.village);
               const topoTownship = topojson.feature(twTownship, twTownship.objects.town);
-              const { counties, county_template } = this.demoCountyData(country, topoCounty);
-              const { towns, township_template } = this.demoTownshipData(country, topoTownship);
-              const { villages, village_template } = this.demoVillageData(country, topoVillage);
+              const { counties, county_template } = this.dealwithCountyData(country, topoCounty, county_data);
+              const { towns, township_template } = this.dealwithTownshipData(country, topoTownship, township_data);
+              const { villages, village_template } = this.dealwithVillageData(country, topoVillage, village_data);
+
+              /**
+               * 此為 輸出 data模板的method
+               * 取消註解 重新整理頁面
+               * 會在一開始時 就跑出下載的視窗
+               */
               // this.writeTemplateToFile('county_data', county_template)
               // this.writeTemplateToFile('township_data', township_template)
               // this.writeTemplateToFile('village_data', village_template)
+
               setDatas({
                 counties: counties,
                 towns: towns,
                 villages: villages
               });
+
               const center = [121, 23.9];
               const scale = 10000;
               const prj = geoMercator().center(center).translate([width / 2, height / 2]).scale(scale);
               this.path = geoPath().projection(prj);
-              // console.log('done');
+
               this.setState({
                 loading: false,
                 topoCounty: topoCounty,

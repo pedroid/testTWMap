@@ -2,67 +2,182 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Available Scripts
 
-In the project directory, you can run:
+### 開發模式
+  此模式下 支援 hot reload
 
-### `npm start`
+  修改完程式碼 頁面會自動更新
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+  ```shell
+    npm run dev
+  ```
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+### 測試 Production 
+  此模式下 會自動build project 並 serve
 
-### `npm test`
+  用於測試 正式環境
+  ```shell
+    npm start
+```
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### GithubPage Host 
+  先修改 `package.json` 內的 `homepage` 位置
+  ```json
+    {
+      ...
+      /* 修改為自己的github專案的page網址  */
+      "homepage": "https://kennedy0527.github.io/TwMapTest/",
+    ...
+  }
+  ```
+  再執行以下 script
+  ```shell
+  npm run deploy
+  ```
 
-### `npm run build`
+## 資料夾結構
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
+`assets` 資料夾內 包含`依各國名稱`建立的資料夾 於其內 `topoJson` 跟 `data` 資料
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+`MapSources.js` 是為了方便一次匯入多筆 `topoJson` 與 `data` 資料 而特別獨立的js
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+**目前只有 `台灣` 資料是最齊全完善的**
 
-### `npm run eject`
+**建立 `MapSources.js` 請參考台灣的檔案**
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+如須 建立它國 請參照以下架構
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
+China
+├── MapSources.js
+├── county.topo.json
+├── county_data.json
+├── township.topo.json
+├── township_data.json
+├── village.topo.json
+└── village_data.json
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## 使用方式
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+  ```javascript
+    import Map, { MapManager } from './Map/index';
 
-## Learn More
+    <Map
+      ref={ref => this.mapRef = ref}
+      country={'tw'}
+    />
+  ```
+  `country` 值為國別名稱, 目前僅支援 `tw`, `kr`
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Map
+  此為 `React Component`
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+  透過 `Ref` 可以 使用其 methods
 
-### Code Splitting
+### goto_county (code)
+### goto_township (code)
+### goto_village (code)
+  此三個Methods 為 `Zoom In` 至 指定 縣市/鄉鎮區/村里
+  ```javascript
+    this.mapRef.goto_county('64000')
+  ```
+### zoom_fit()
+  此 Methods 為 回到`最初`的 zoom 點
+  ```javascript
+    this.mapRef.zoom_fit()
+  ```
+## zoom_out()
+  此 Methods 為 回到`上一個` zoom 點 
+  ```javascript
+    this.mapRef.zoom_out()
+  ```
+## exportToPNG()
+  此 Methods 為 輸出目前 svg的viewport 為png檔
+  ```javascript
+    this.mapRef.exportToPNG()
+  ```
+## MapManager
+  此 `Class` 提供 資料操作之相關methods
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+### init ()
+  此 Method 是用來 `reset` 所有class內的資料
 
-### Analyzing the Bundle Size
+  通常用於 `國別` 切換時
+  ```javascript
+    MapManager.init()
+  ```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+### onSubscribe (code, event)
+  此 Method 用於 將path color updater 存進 class 內
+  ```javascript
+    function updateColor() {
+      ...
+    }
 
-### Making a Progressive Web App
+    MapManager.onSubscribe('64000', updateColor);
+  ```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+### getData (type, code)
+  此 Method 用於取得資料
+  
+  type 僅支援以下三個`string`
+  |  string    |  說明  |
+  | ---------- | ----- |
+  | 'county'   | 縣市   |
+  | 'township' | 鄉鎮區 |
+  | 'village'  | 村里   |
+  ```javascript
+    MapManager.getData('county', '64000')
+  ```
 
-### Advanced Configuration
+### setCountyData (code, data)
+### setTownshipData (code, data)
+### setVillageData (code, data)
+  此三個Methods 用於 儲存`預設資料`
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+  `data` 結構 都一樣
+  ```json
+  {
+    name: xxx
+    data: xxx,
+    description: xxx
+  }
+  ```
+  ```javascript
+  MapManager.setCountyData('64000', {
+    name: '高雄市',
+    data: 99,
+    description: '我是高雄市的描述內容'
+  })
+  ```
+### set_county_data (code, data)
+### set_township_data (code, data)
+### set_village_data (code, data)
+  此三個Methods 用於 修改 `data`值
 
-### Deployment
+  ```javascript
+    MapManager.set_county_data('64000', 50);
+  ```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
+### set_county_description (code, data)
+### set_township_description (code, data)
+### set_village_description (code, data)
+  此三個Methods 用於 修改 `description`值
+  ```javascript
+    MapManager.set_county_datadescription('64000', '我才不是台南市');
+  ```
 
-### `npm run build` fails to minify
+### getColor (value)
+  此Method 用於 取得傳入`數值` 所屬的`顏色`
+  ```javascript
+    MapManager.getColor(50);
+  ```
+### setColor (min, max, lightest, deepest)
+  此Method 用於 修改預設的 Color scale linear
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+  color 支援 hex rgb hsl 與 name
+
+  參考 (https://www.w3schools.com/colors/colors_picker.asp)
+  ```javascript
+    MapManager.setColor(10 , 80, '#ff99cc', '#ff1a8c');
+  ```

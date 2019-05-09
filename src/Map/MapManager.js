@@ -13,15 +13,17 @@ class Manager {
     .range([this.colorLightest, this.colorDeepest])
     .clamp(true);
 
-  onSubscribe = (code, event) => {
-    this.pathColorUpdater.set(code, event);
-  }
   init = () => {
     this.county_data.clear();
     this.township_data.clear();
     this.village_data.clear();
     this.pathColorUpdater.clear();
   }
+
+  onSubscribe = (code, event) => {
+    this.pathColorUpdater.set(code, event);
+  }
+
   getData = (type, code) => {
     switch (type) {
       case 'county':
@@ -154,4 +156,4 @@ class Manager {
   }
 }
 
-export const MapManager = new Manager();
+export default Manager;
