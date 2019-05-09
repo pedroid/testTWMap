@@ -332,21 +332,6 @@ export default class Map extends Component {
     a.click();
     document.body.removeChild(a);
   }
-  shouldComponentUpdate(nextProps, nextState) {
-    const { loading } = this.state;
-    const { country } = this.props;
-    if (country !== nextProps.country) {
-      this.initialMapSouces(nextProps.country)
-    }
-    if (loading !== nextState.loading) {
-      return true;
-    }
-    return false
-  }
-  componentWillMount() {
-    const { country } = this.props;
-    this.initialMapSouces(country)
-  }
   initialMapSouces = (country) => {
     const { width, height } = this.state;
     const { setDatas } = this.props;
@@ -459,6 +444,21 @@ export default class Map extends Component {
           break;
       }
     })
+  }
+  shouldComponentUpdate(nextProps, nextState) {
+    const { loading } = this.state;
+    const { country } = this.props;
+    if (country !== nextProps.country) {
+      this.initialMapSouces(nextProps.country)
+    }
+    if (loading !== nextState.loading) {
+      return true;
+    }
+    return false
+  }
+  componentWillMount() {
+    const { country } = this.props;
+    this.initialMapSouces(country)
   }
   /**
    * 清除已選的 縣市 

@@ -1,5 +1,20 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## First Step
+
+```
+  git clone this repo
+
+  cd project name
+
+  npm install
+
+  npm run dev
+
+  開始開發!!
+```
+
+
 ## Available Scripts
 
 ### 開發模式
@@ -21,13 +36,12 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ### GithubPage Host 
   先修改 `package.json` 內的 `homepage` 位置
-  ```json
+  ```
     {
       ...
-      /* 修改為自己的github專案的page網址  */
       "homepage": "https://kennedy0527.github.io/TwMapTest/",
-    ...
-  }
+      ...
+    }
   ```
   再執行以下 script
   ```shell
@@ -42,7 +56,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 **目前只有 `台灣` 資料是最齊全完善的**
 
-**建立 `MapSources.js` 請參考台灣的檔案**
+**建立 `MapSources.js` 請參考台灣的[檔案]((https://github.com/kennedy0527/TwMapTest/blob/bec3912899532a800c417a5ed7f1c6baff76b535/src/assets/Taiwan/MapSources.js#L1-L16))**
 
 如須 建立它國 請參照以下架構
 
@@ -56,6 +70,73 @@ China
 ├── village.topo.json
 └── village_data.json
 ```
+### 新增國別
+此部分 除了參照上方的架構去新增檔案
+
+程式部分也要進行修改
+
+`Map.js`, `County.js`, `Township.js`, `Village.js`內
+
+牽扯到 `switch (country)`
+
+都需進行修改（可以透過IDE Find `switch (country)`）
+
+`country`這個變數為 國別縮寫string
+
+目前已有的是 `tw` 與 `kr`
+
+若要新增中國 可以加入 `cn` 
+ex:
+```javascript
+  switch (country) {
+    case 'cn':
+    ...
+  }
+```
+來進行 中國 topoJson 的 特別處理
+
+
+## Data Template 的輸出方式
+  意指 由`topoJson` 產出 `county_data`, `township_data`, `village_data` 三個json檔案
+
+  請參考 [註解](https://github.com/kennedy0527/TwMapTest/blob/bec3912899532a800c417a5ed7f1c6baff76b535/src/Map/Map.js#L424-L431)
+
+## Data 資料
+  目前已台灣為例 由於data template已產出
+
+  所以 以實際使用上該資料了(初始化資料)
+
+  可以參考[這個片段](https://github.com/kennedy0527/TwMapTest/blob/bec3912899532a800c417a5ed7f1c6baff76b535/src/Map/Map.js#L408-L457)
+
+  若要更改為 fetch api的方式
+
+  就是將這個片段
+  ```javascript
+    import('xxxx')
+      .then(...)
+      .catch(...)
+  ```
+
+  更改為
+
+  ```javascript
+    fetch('your api url')
+      .then(...)
+      .catch(..)
+  ```
+  即可
+
+  但要注意的是`MapSorces.js`內 有包含`topoJson`
+  
+  若僅需fetch data 那麼 `import可以保留, 內部加入fetch` 即可
+
+  完整資料處理過程 可以參考
+
+  `dealwithCountyData` [代碼片段](https://github.com/kennedy0527/TwMapTest/blob/bec3912899532a800c417a5ed7f1c6baff76b535/src/Map/Map.js#L49)
+
+  `dealwithTownshipData` [代碼片段](https://github.com/kennedy0527/TwMapTest/blob/bec3912899532a800c417a5ed7f1c6baff76b535/src/Map/Map.js#L138)
+
+  `dealwithVillageData` [代碼片段](https://github.com/kennedy0527/TwMapTest/blob/bec3912899532a800c417a5ed7f1c6baff76b535/src/Map/Map.js#L227)
 
 ## 使用方式
 
@@ -136,7 +217,7 @@ China
   此三個Methods 用於 儲存`預設資料`
 
   `data` 結構 都一樣
-  ```json
+  ```
   {
     name: xxx
     data: xxx,
