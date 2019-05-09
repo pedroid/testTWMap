@@ -49,7 +49,8 @@ export default class App extends Component {
   }
   changeCountry = () => {
     this.setState({
-      selectedCountry: this.countrySelect.value
+      selectedCountry: this.countrySelect.value,
+      selectedInfo: {}
     })
   }
   onCountySelect = (e) => {
@@ -198,10 +199,10 @@ export default class App extends Component {
     })
   }
   setColor = () => {
-    if (this.deepestColor.value !== '' || this.lightestColor.value !== '') {
-      MapManager.setColor(this.lightestColor.value, this.deepestColor.value)
+    if (this.deepestColor.value !== '' || this.lightestColor.value !== '' || this.min.value !== '' || this.max.value !== '') {
+      MapManager.setColor(this.min.value, this.max.value, this.lightestColor.value, this.deepestColor.value)
     } else {
-      alert('最淺及最深顏色都需要填寫');
+      alert('請正確填入所有相關值');
     }
   }
   render() {
@@ -339,8 +340,14 @@ export default class App extends Component {
             </div>
             <div className="controller">
               <div>
-                <input type="text" ref={ref => this.lightestColor = ref} placeholder='最淺顏色' />
-                <input type="text" ref={ref => this.deepestColor = ref} placeholder='最深顏色' />
+                <div>
+                  <input type="number" ref={ref => this.min = ref} placeholder='最大值' />
+                  <input type="number" ref={ref => this.max = ref} placeholder='最小值' />
+                </div>
+                <div>
+                  <input type="text" ref={ref => this.lightestColor = ref} placeholder='最淺顏色' />
+                  <input type="text" ref={ref => this.deepestColor = ref} placeholder='最深顏色' />
+                </div>
                 <input type="button" onClick={this.setColor} value="設定顏色" />
               </div>
             </div>

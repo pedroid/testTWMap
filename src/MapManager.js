@@ -10,7 +10,8 @@ class Manager {
   colorDeepest = '#004080';
   colorScale = scaleLinear()
     .domain([0, 100])
-    .range([this.colorLightest, this.colorDeepest]);
+    .range([this.colorLightest, this.colorDeepest])
+    .clamp(true);
 
   onSubscribe = (code, event) => {
     this.pathColorUpdater.set(code, event);
@@ -131,12 +132,13 @@ class Manager {
   /**
    * 設定 最淺 與 最深 的顏色
    */
-  setColor = (lightest, deepest) => {
+  setColor = (min, max, lightest, deepest) => {
     this.colorLightest = lightest;
     this.colorDeepest = deepest;
     this.colorScale = scaleLinear()
-      .domain([0, 100])
-      .range([this.colorLightest, this.colorDeepest]);
+      .domain([min, max])
+      .range([this.colorLightest, this.colorDeepest])
+      .clamp(true);
     this.county_data.forEach(({ data }, key) => {
       const colorUpdater = this.pathColorUpdater.get(key);
       colorUpdater(this.getColor(data))
