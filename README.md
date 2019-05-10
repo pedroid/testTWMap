@@ -165,17 +165,17 @@ ex:
     this.mapRef.goto_county('64000')
   ```
 ### zoom_fit()
-  此 Methods 為 回到`最初`的 zoom 點
+  此 Method 為 回到`最初`的 zoom 點
   ```javascript
     this.mapRef.zoom_fit()
   ```
 ## zoom_out()
-  此 Methods 為 回到`上一個` zoom 點 
+  此 Method 為 回到`上一個` zoom 點 
   ```javascript
     this.mapRef.zoom_out()
   ```
 ## exportToPNG()
-  此 Methods 為 輸出目前 svg的viewport 為png檔
+  此 Method 為 輸出目前 svg的viewport 為`png圖檔`
   ```javascript
     this.mapRef.exportToPNG()
   ```
