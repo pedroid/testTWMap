@@ -1,0 +1,19 @@
+{
+  "files": {
+    "main.css": "/pedroid/testTWMap/static/css/main.c50c7fd5.chunk.css",
+    "main.js": "/pedroid/testTWMap/static/js/main.09a293f2.chunk.js",
+    "main.js.map": "/pedroid/testTWMap/static/js/main.09a293f2.chunk.js.map",
+    "runtime~main.js": "/pedroid/testTWMap/static/js/runtime~main.8a40514f.js",
+    "runtime~main.js.map": "/pedroid/testTWMap/static/js/runtime~main.8a40514f.js.map",
+    "static/js/2.57bd5f5a.chunk.js": "/pedroid/testTWMap/static/js/2.57bd5f5a.chunk.js",
+    "static/js/2.57bd5f5a.chunk.js.map": "/pedroid/testTWMap/static/js/2.57bd5f5a.chunk.js.map",
+    "static/js/3.1d32a947.chunk.js": "/pedroid/testTWMap/static/js/3.1d32a947.chunk.js",
+    "static/js/3.1d32a947.chunk.js.map": "/pedroid/testTWMap/static/js/3.1d32a947.chunk.js.map",
+    "static/js/4.727ea69a.chunk.js": "/pedroid/testTWMap/static/js/4.727ea69a.chunk.js",
+    "static/js/4.727ea69a.chunk.js.map": "/pedroid/testTWMap/static/js/4.727ea69a.chunk.js.map",
+    "index.html": "/pedroid/testTWMap/index.html",
+    "precache-manifest.013edca6c6c883f062588ab7de418556.js": "/pedroid/testTWMap/precache-manifest.013edca6c6c883f062588ab7de418556.js",
+    "service-worker.js": "/pedroid/testTWMap/service-worker.js",
+    "static/css/main.c50c7fd5.chunk.css.map": "/pedroid/testTWMap/static/css/main.c50c7fd5.chunk.css.map"
+  }
+}
