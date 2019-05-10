@@ -86,7 +86,9 @@ China
 目前已有的是 `tw` 與 `kr`
 
 若要新增中國 可以加入 `cn` 
+
 ex:
+
 ```javascript
   switch (country) {
     case 'cn':
@@ -202,11 +204,13 @@ ex:
   此 Method 用於取得資料
   
   type 僅支援以下三個`string`
+
   |  string    |  說明  |
   | ---------- | ----- |
   | 'county'   | 縣市   |
   | 'township' | 鄉鎮區 |
   | 'village'  | 村里   |
+
   ```javascript
     MapManager.getData('county', '64000')
   ```
